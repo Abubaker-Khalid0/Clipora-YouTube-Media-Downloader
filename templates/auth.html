@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Clipora - Authentication</title>
+    <link rel="icon" type="image/png" href="/static/images/logo.png" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ea2a33",
+                        "primary-dark": "#c91e26",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#211111",
+                        "surface-light": "rgba(255, 255, 255, 0.7)",
+                        "surface-dark": "rgba(33, 17, 17, 0.7)",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        "glass": "0 8px 32px 0 rgba(31, 38, 135, 0.07)",
+                    }
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        .glass-card {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .tab-active {
+            @apply border-primary text-[#1b0e0e] dark:text-white border-b-4 font-bold;
+        }
+        .tab-inactive {
+            @apply border-transparent text-[#994d51]/60 dark:text-white/40 hover:text-primary transition-colors cursor-pointer;
+        }
+        .form-checkbox {
+            @apply rounded border-[#e7d0d1] dark:border-white/10 text-primary focus:ring-primary;
+        }
+        
+        /* Form Container Animations */
+        .forms-container {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .form-panel {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .form-panel.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+        
+        .form-panel.inactive-left {
+            opacity: 0;
+            transform: translateX(-30px);
+            pointer-events: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+        
+        .form-panel.inactive-right {
+            opacity: 0;
+            transform: translateX(30px);
+            pointer-events: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+        
+        /* Tab indicator animation */
+        .tab-indicator {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-[#1b0e0e] dark:text-[#fcf8f8] min-h-screen flex flex-col transition-colors duration-300">
+
+    <!-- Background Decorations -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div
+            class="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] rounded-full bg-primary/5 dark:bg-primary/10 blur-[100px]">
+        </div>
+        <div
+            class="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-primary/10 dark:bg-primary/5 blur-[120px]">
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="relative z-10 flex-1 flex items-center justify-center p-4 sm:p-6 my-10">
+        <div
+            class="w-full max-w-[440px] glass-card bg-surface-light dark:bg-[#2a1d1d]/60 border border-white/50 dark:border-white/10 rounded-lg shadow-glass flex flex-col p-8 sm:p-10">
+
+            <!-- Logo -->
+            <div class="flex flex-col items-center gap-6 mb-6">
+                <div class="flex items-center gap-2 text-primary">
+                    <img src="/static/images/logo.png" alt="Clipora" class="h-10 w-10 object-contain" />
+                    <span class="text-2xl font-bold tracking-tight text-[#1b0e0e] dark:text-white">Clipora</span>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="relative flex border-b border-[#e7d0d1] dark:border-white/10 mb-8">
+                <button id="login-tab" class="flex-1 pb-4 text-center tab-active" onclick="switchTab('login')">Log
+                    in</button>
+                <button id="signup-tab" class="flex-1 pb-4 text-center tab-inactive" onclick="switchTab('signup')">Sign
+                    up</button>
+                <!-- Tab Indicator -->
+                <div id="tab-indicator"
+                    class="absolute bottom-0 left-0 w-1/2 h-1 bg-primary tab-indicator rounded-full"></div>
+            </div>
+
+            <!-- Dynamic Header -->
+            <div class="text-center mb-6">
+                <h1 id="form-title"
+                    class="text-2xl font-extrabold text-[#1b0e0e] dark:text-white tracking-tight transition-all duration-300">
+                    Welcome back</h1>
+                <p id="form-subtitle"
+                    class="text-sm text-[#994d51]/70 dark:text-white/50 mt-1 transition-all duration-300">Log in to
+                    continue.</p>
+            </div>
+
+            <!-- Google Button (Shared) -->
+            <div class="flex flex-col w-full">
+                <button
+                    class="flex w-full cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-full h-12 px-5 bg-white dark:bg-white/10 border border-[#e7d0d1] dark:border-white/10 text-[#1b0e0e] dark:text-white hover:bg-[#f3e7e8] dark:hover:bg-white/20 transition-colors duration-200">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                            fill="#4285F4"></path>
+                        <path
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                            fill="#34A853"></path>
+                        <path
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                            fill="#FBBC05"></path>
+                        <path
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                            fill="#EA4335"></path>
+                    </svg>
+                    <span class="text-base font-bold leading-normal tracking-[0.015em]">Continue with Google</span>
+                </button>
+
+                <!-- Divider -->
+                <div class="relative flex items-center py-8">
+                    <div class="flex-grow border-t border-[#e7d0d1] dark:border-white/10"></div>
+                    <span
+                        class="flex-shrink-0 mx-4 text-xs font-bold text-[#994d51] dark:text-[#e7d0d1]/60 uppercase tracking-widest">OR</span>
+                    <div class="flex-grow border-t border-[#e7d0d1] dark:border-white/10"></div>
+                </div>
+            </div>
+
+            <!-- Forms Container -->
+            <div class="forms-container">
+
+                <!-- Login Form -->
+                <div id="login-form" class="form-panel active">
+                    <form class="flex flex-col gap-5">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#1b0e0e] dark:text-white text-sm font-semibold ml-1"
+                                for="login-email">Email Address</label>
+                            <div class="relative">
+                                <input
+                                    class="form-input flex w-full rounded-full text-[#1b0e0e] dark:text-white bg-white dark:bg-white/5 border border-[#e7d0d1] dark:border-white/10 focus:border-primary focus:ring-1 focus:ring-primary h-12 px-5 pr-12 placeholder:text-[#994d51]/40 dark:placeholder:text-white/30 text-base transition-all"
+                                    id="login-email" value="admin@mediadownloader.com" placeholder="you@example.com"
+                                    required="" type="email" />
+                                <div
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-[#994d51]/60 dark:text-white/40 pointer-events-none">
+                                    <span class="material-symbols-outlined text-[20px]">mail</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <div class="flex justify-between items-center ml-1">
+                                <label class="text-[#1b0e0e] dark:text-white text-sm font-semibold"
+                                    for="login-password">Password</label>
+                                <a class="text-xs text-primary hover:underline font-bold" href="#">Forgot password?</a>
+                            </div>
+                            <div class="relative">
+                                <input
+                                    class="form-input flex w-full rounded-full text-[#1b0e0e] dark:text-white bg-white dark:bg-white/5 border border-[#e7d0d1] dark:border-white/10 focus:border-primary focus:ring-1 focus:ring-primary h-12 px-5 pr-12 placeholder:text-[#994d51]/40 dark:placeholder:text-white/30 text-base transition-all"
+                                    id="login-password" value="password123" placeholder="••••••••" required=""
+                                    type="password" />
+                                <div
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-[#994d51]/60 dark:text-white/40 pointer-events-none">
+                                    <span class="material-symbols-outlined text-[20px]">lock</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button
+                            class="mt-2 flex w-full cursor-pointer items-center justify-center rounded-full h-12 px-8 bg-primary hover:bg-primary-dark text-white text-base font-bold tracking-[0.015em] shadow-lg shadow-primary/20 transition-all duration-200 transform active:scale-[0.98]"
+                            type="submit">
+                            <span>Log In</span>
+                        </button>
+                        <p class="text-[10px] text-center text-primary/60 font-bold uppercase tracking-widest mt-2">
+                            Trial Mode: Use pre-filled credentials
+                        </p>
+                    </form>
+                    <p class="text-center text-sm text-[#994d51]/70 dark:text-white/50 mt-6">
+                        Don't have an account? <button onclick="switchTab('signup')"
+                            class="text-primary hover:underline font-bold">Sign up</button>
+                    </p>
+                </div>
+
+                <!-- Signup Form -->
+                <div id="signup-form" class="form-panel inactive-right">
+                    <form class="flex flex-col gap-5">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#1b0e0e] dark:text-white text-sm font-semibold ml-1"
+                                for="signup-email">Email Address</label>
+                            <div class="relative">
+                                <input
+                                    class="form-input flex w-full rounded-full text-[#1b0e0e] dark:text-white bg-white dark:bg-white/5 border border-[#e7d0d1] dark:border-white/10 focus:border-primary focus:ring-1 focus:ring-primary h-12 px-5 pr-12 placeholder:text-[#994d51]/40 dark:placeholder:text-white/30 text-base transition-all"
+                                    id="signup-email" value="newuser@example.com" placeholder="you@example.com"
+                                    required="" type="email" />
+                                <div
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-[#994d51]/60 dark:text-white/40 pointer-events-none">
+                                    <span class="material-symbols-outlined text-[20px]">mail</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#1b0e0e] dark:text-white text-sm font-semibold ml-1"
+                                for="signup-password">Password</label>
+                            <div class="relative">
+                                <input
+                                    class="form-input flex w-full rounded-full text-[#1b0e0e] dark:text-white bg-white dark:bg-white/5 border border-[#e7d0d1] dark:border-white/10 focus:border-primary focus:ring-1 focus:ring-primary h-12 px-5 pr-12 placeholder:text-[#994d51]/40 dark:placeholder:text-white/30 text-base transition-all"
+                                    id="signup-password" value="password123" placeholder="••••••••" required=""
+                                    type="password" />
+                                <div
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-[#994d51]/60 dark:text-white/40 pointer-events-none">
+                                    <span class="material-symbols-outlined text-[20px]">lock</span>
+                                </div>
+                            </div>
+                            <p class="text-[11px] text-[#994d51]/60 dark:text-white/40 ml-1">Password must be at least 8
+                                characters</p>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[#1b0e0e] dark:text-white text-sm font-semibold ml-1"
+                                for="confirm-password">Confirm Password</label>
+                            <div class="relative">
+                                <input
+                                    class="form-input flex w-full rounded-full text-[#1b0e0e] dark:text-white bg-white dark:bg-white/5 border border-[#e7d0d1] dark:border-white/10 focus:border-primary focus:ring-1 focus:ring-primary h-12 px-5 pr-12 placeholder:text-[#994d51]/40 dark:placeholder:text-white/30 text-base transition-all"
+                                    id="confirm-password" value="password123" placeholder="••••••••" required=""
+                                    type="password" />
+                                <div
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-[#994d51]/60 dark:text-white/40 pointer-events-none">
+                                    <span class="material-symbols-outlined text-[20px]">lock_reset</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 ml-1">
+                            <input class="form-checkbox" id="terms" required="" type="checkbox" />
+                            <label class="text-xs text-[#994d51] dark:text-white/60 font-medium cursor-pointer"
+                                for="terms">
+                                I agree to <a class="text-primary hover:underline" href="#">Terms &amp; Privacy</a>
+                            </label>
+                        </div>
+                        <button
+                            class="mt-2 flex w-full cursor-pointer items-center justify-center rounded-full h-12 px-8 bg-primary hover:bg-primary-dark text-white text-base font-bold tracking-[0.015em] shadow-lg shadow-primary/20 transition-all duration-200 transform active:scale-[0.98]"
+                            type="submit">
+                            <span>Create Account</span>
+                        </button>
+                    </form>
+                    <p class="text-center text-sm text-[#994d51]/70 dark:text-white/50 mt-6">
+                        Already have an account? <button onclick="switchTab('login')"
+                            class="text-primary hover:underline font-bold">Log in</button>
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- Footer Note -->
+            <div class="mt-8 text-center flex flex-col gap-3">
+                <p class="text-xs text-[#994d51]/70 dark:text-white/40 font-medium">
+                    Get 2 free downloads on the free plan
+                </p>
+                <div class="pt-2 border-t border-[#e7d0d1] dark:border-white/10">
+                    <a href="/dashboard"
+                        class="text-[11px] font-bold text-primary/40 hover:text-primary transition-colors flex items-center justify-center gap-1 group">
+                        <span class="material-symbols-outlined text-sm">fast_forward</span>
+                        DEV: SKIP TO DASHBOARD
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript for Tab Switching & Mock Auth -->
+    <script>
+        function switchTab(tab) {
+            const loginTab = document.getElementById('login-tab');
+            const signupTab = document.getElementById('signup-tab');
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const tabIndicator = document.getElementById('tab-indicator');
+            const formTitle = document.getElementById('form-title');
+            const formSubtitle = document.getElementById('form-subtitle');
+
+            if (tab === 'login') {
+                // Update tabs
+                loginTab.classList.remove('tab-inactive');
+                loginTab.classList.add('tab-active');
+                signupTab.classList.remove('tab-active');
+                signupTab.classList.add('tab-inactive');
+
+                // Move indicator
+                tabIndicator.style.transform = 'translateX(0)';
+
+                // Update forms with animation
+                loginForm.classList.remove('inactive-left', 'inactive-right');
+                loginForm.classList.add('active');
+                signupForm.classList.remove('active', 'inactive-left');
+                signupForm.classList.add('inactive-right');
+
+                // Update header text with fade
+                formTitle.style.opacity = '0';
+                formSubtitle.style.opacity = '0';
+                setTimeout(() => {
+                    formTitle.textContent = 'Welcome back';
+                    formSubtitle.textContent = 'Log in to continue.';
+                    formTitle.style.opacity = '1';
+                    formSubtitle.style.opacity = '1';
+                }, 150);
+
+            } else if (tab === 'signup') {
+                // Update tabs
+                signupTab.classList.remove('tab-inactive');
+                signupTab.classList.add('tab-active');
+                loginTab.classList.remove('tab-active');
+                loginTab.classList.add('tab-inactive');
+
+                // Move indicator
+                tabIndicator.style.transform = 'translateX(100%)';
+
+                // Update forms with animation
+                signupForm.classList.remove('inactive-left', 'inactive-right');
+                signupForm.classList.add('active');
+                loginForm.classList.remove('active', 'inactive-right');
+                loginForm.classList.add('inactive-left');
+
+                // Update header text with fade
+                formTitle.style.opacity = '0';
+                formSubtitle.style.opacity = '0';
+                setTimeout(() => {
+                    formTitle.textContent = 'Create account';
+                    formSubtitle.textContent = 'Join us and start downloading.';
+                    formTitle.style.opacity = '1';
+                    formSubtitle.style.opacity = '1';
+                }, 150);
+            }
+        }
+
+        // Mock Authentication - Redirect to dashboard on any login/signup
+        document.addEventListener('DOMContentLoaded', function () {
+            const hash = window.location.hash;
+            if (hash === '#signup') {
+                switchTab('signup');
+            }
+
+            // Login form submit
+            const loginForm = document.getElementById('login-form').querySelector('form');
+            loginForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                // Mock login - accept any credentials
+                localStorage.setItem('mockAuth', JSON.stringify({
+                    email: document.getElementById('login-email').value,
+                    name: 'Alex Morgan',
+                    loggedIn: true
+                }));
+                window.location.href = '/dashboard';
+            });
+
+            // Signup form submit
+            const signupForm = document.getElementById('signup-form').querySelector('form');
+            signupForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                // Mock signup - accept any credentials
+                localStorage.setItem('mockAuth', JSON.stringify({
+                    email: document.getElementById('signup-email').value,
+                    name: 'New User',
+                    loggedIn: true
+                }));
+                window.location.href = '/dashboard';
+            });
+
+            // Google button - also mock redirect
+            const googleBtn = document.querySelector('button:has(svg)');
+            if (googleBtn) {
+                googleBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    localStorage.setItem('mockAuth', JSON.stringify({
+                        email: 'user@gmail.com',
+                        name: 'Google User',
+                        loggedIn: true
+                    }));
+                    window.location.href = '/dashboard';
+                });
+            }
+        });
+    </script>
+
+</body>
+
+</html>
