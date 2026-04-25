@@ -1,0 +1,187 @@
+{
+  "auth": {
+    "tabs": {
+      "login": "تسجيل الدخول",
+      "signup": "إنشاء حساب"
+    },
+    "login": {
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "submit": "تسجيل الدخول",
+      "forgotPassword": "نسيت كلمة المرور؟",
+      "or": "أو",
+      "google": "المتابعة مع Google",
+      "errors": {
+        "invalid": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+        "unverified": "يرجى التحقق من بريدك الإلكتروني قبل تسجيل الدخول.",
+        "locked": "الحساب مقفل. حاول مرة أخرى خلال {minutes} دقيقة."
+      }
+    },
+    "signup": {
+      "fullName": "الاسم الكامل",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "submit": "إنشاء الحساب",
+      "or": "أو",
+      "google": "المتابعة مع Google",
+      "errors": {
+        "emailTaken": "يوجد حساب بهذا البريد الإلكتروني بالفعل.",
+        "passwordMismatch": "كلمتا المرور غير متطابقتين.",
+        "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل."
+      }
+    },
+    "verification": {
+      "sent": "تحقق من بريدك الإلكتروني للحصول على رابط التحقق.",
+      "resend": "إعادة إرسال بريد التحقق",
+      "expired": "انتهت صلاحية رابط التحقق.",
+      "status": "البريد الإلكتروني غير محقق بعد."
+    },
+    "reset": {
+      "trigger": "هل نسيت كلمة مرورك؟",
+      "email": "أدخل بريدك الإلكتروني",
+      "submit": "إرسال رابط إعادة التعيين",
+      "sent": "إذا كان الحساب موجوداً، فقد تم إرسال رابط إعادة التعيين.",
+      "rateLimited": "يرجى الانتظار قبل طلب رابط جديد.",
+      "newPassword": "كلمة المرور الجديدة",
+      "confirmPassword": "تأكيد كلمة المرور الجديدة",
+      "save": "حفظ كلمة المرور الجديدة",
+      "success": "تم تحديث كلمة المرور. يرجى تسجيل الدخول."
+    }
+  },
+  "landing": {
+    "navbar": {
+      "login": "تسجيل الدخول",
+      "start": "ابدأ مجاناً",
+      "features": "المميزات"
+    },
+    "hero": {
+      "badge": "جرّب مجاناً — لا حاجة لبطاقة ائتمان",
+      "title": "أكثر من مجرد",
+      "titleAccent": "أداة تحميل.",
+      "subtitle": "حمّل، قصّ، وحوّل. ابدأ بأدواتنا الأساسية مجاناً.",
+      "cta": "ابدأ تجربتك المجانية"
+    },
+    "howItWorks": {
+      "heading": "كيف يعمل؟",
+      "step1Title": "إنشاء حساب",
+      "step1Desc": "سجّل مجاناً واحصل على 10 رصيد فوراً.",
+      "step2Title": "تحليل الفيديو",
+      "step2Desc": "الصق أي رابط من YouTube وسنجلب جميع الصيغ المتاحة.",
+      "step3Title": "اختر وعدّل",
+      "step3Desc": "اختر الجودة والصيغة، وقص المقطع الذي تريده اختيارياً.",
+      "step4Title": "تحميل",
+      "step4Desc": "احصل على ملفك فوراً — فيديو أو صوت أو صورة مصغّرة."
+    },
+    "footer": {
+      "copyright": "© {year} Clipora. جميع الحقوق محفوظة.",
+      "privacy": "سياسة الخصوصية",
+      "terms": "شروط الخدمة",
+      "contact": "تواصل معنا"
+    }
+  },
+  "legal": {
+    "comingSoon": "قريباً",
+    "comingSoonSub": "هذه الصفحة قيد الإنشاء. تفضّل بزيارتنا مرة أخرى قريباً."
+  },
+  "notFound": {
+    "heading": "404",
+    "message": "عذراً! هذه الصفحة غير موجودة.",
+    "cta": "العودة للرئيسية"
+  },
+  "dashboard": {
+    "placeholder": "https://www.youtube.com/watch?v=...",
+    "analyze": "تحليل",
+    "analyzing": "جارٍ التحليل...",
+    "startProcessing": "بدء المعالجة",
+    "initializing": "جارٍ التهيئة...",
+    "downloading": "جارٍ التحميل {percent}%",
+    "merging": "جارٍ الدمج...",
+    "trimming": "جارٍ القص...",
+    "downloadReady": "جاهز للتحميل",
+    "downloaded": "تم التحميل ✓",
+    "creditsRemaining": "متبقي {count} رصيد",
+    "noActivity": "لا يوجد نشاط بعد",
+    "noActivitySub": "ستظهر تحميلاتك هنا",
+    "welcome": "مرحباً بك في Clipora، {name}! 🎬",
+    "welcomeSub": "لديك {credits} رصيد مجاني للبدء.",
+    "welcomeHint": "الصق رابط YouTube أدناه للبدء.",
+    "emptyVideoHint": "ستظهر معاينة الفيديو هنا بعد التحليل",
+    "emptySettingsHint": "حلّل رابطاً لإلغاء قفل الإعدادات",
+    "trimSegment": "قص المقطع",
+    "trimPrecision": "اختيار المقطع بدقة",
+    "trimReset": "إعادة تعيين",
+    "zeroCreditsTitle": "نفدت الأرصدة",
+    "zeroCreditsMessage": "لقد استنفدت جميع أرصدتك. شكراً لتجربة Clipora!",
+    "zeroCreditsAction": "حسناً",
+    "recentActivity": "النشاط الأخير",
+    "modeVideo": "فيديو",
+    "modeAudio": "صوت",
+    "modeThumbnail": "صورة مصغّرة",
+    "qualityLabel": "الجودة",
+    "formatLabel": "الصيغة",
+    "estimatedSize": "الحجم التقريبي ~{size}",
+    "estimatedTime": "الوقت التقريبي {time}",
+    "fileExpired": "انتهت صلاحية الملف",
+    "processingFailed": "فشلت المعالجة. يرجى المحاولة مرة أخرى.",
+    "enableTrim": "تفعيل القص",
+    "profile": "الملف الشخصي",
+    "startTime": "البداية",
+    "endTime": "النهاية",
+    "trimValidation": "يجب أن يكون وقت البداية أقل من وقت النهاية.",
+    "untitled": "فيديو بدون عنوان",
+    "credits": "رصيد",
+    "outputSettings": "إعدادات الإخراج",
+    "pasteUrl": "الصق رابط YouTube أعلاه",
+    "videoTypeLabel": "نوع الفيديو",
+    "videoTypeVideoAudio": "فيديو + صوت",
+    "videoTypeVideoOnly": "فيديو فقط",
+    "thumbnailFormatLabel": "صيغة الصورة المصغّرة",
+    "download": "تحميل",
+    "delete": "حذف",
+    "creditsLoadError": "تعذّر تحميل الأرصدة. يتم عرض القيمة المحفوظة.",
+    "activityVideoAudio": "فيديو + صوت",
+    "activityVideoOnly": "فيديو فقط",
+    "activityVideo": "فيديو",
+    "activityAudio": "صوت فقط",
+    "activityThumbnail": "صورة مصغّرة",
+    "activityDownload": "تحميل",
+    "trimOutputLabel": "نوع الإخراج",
+    "trimOutputAudioOnly": "صوت فقط"
+  },
+  "profile": {
+    "memberSince": "عضو منذ {date}",
+    "creditsRemaining": "متبقي {n} رصيد",
+    "changePassword": "تغيير كلمة المرور",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmPassword": "تأكيد كلمة المرور الجديدة",
+    "saveChanges": "حفظ التغييرات",
+    "saving": "جارٍ الحفظ…",
+    "successMessage": "تم تحديث كلمة المرور بنجاح.",
+    "errorMismatch": "كلمتا المرور غير متطابقتين.",
+    "errorMinLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+    "errorWrongPassword": "كلمة المرور الحالية غير صحيحة.",
+    "errorGeneric": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "oauthNotice": "يتم إدارة كلمة مرورك عبر حساب Google الخاص بك.",
+    "lockoutNotice": "محاولات فاشلة كثيرة. حاول مرة أخرى خلال 15 دقيقة.",
+    "logout": "تسجيل الخروج",
+    "logoutTitle": "هل أنت متأكد من تسجيل الخروج؟",
+    "logoutDescription": "سيتم تسجيل خروجك من حسابك في Clipora.",
+    "logoutCancel": "إلغاء",
+    "logoutConfirm": "تسجيل الخروج",
+    "promoTitle": "كود ترويجي",
+    "promoSubtitle": "أدخل كود ترويجي للحصول على رصيد إضافي",
+    "promoPlaceholder": "أدخل الكود الترويجي...",
+    "promoRedeem": "تفعيل",
+    "promoRedeeming": "جارٍ التفعيل...",
+    "promoSuccess": "تم تفعيل الكود بنجاح!",
+    "promoCreditsLabel": "رصيد",
+    "promoRedeemAnother": "تفعيل كود آخر",
+    "promoInvalidCode": "هذا الكود غير صالح أو غير موجود.",
+    "promoAlreadyUsed": "لقد استخدمت هذا الكود من قبل.",
+    "promoExpired": "انتهت صلاحية هذا الكود.",
+    "promoMaxUses": "وصل هذا الكود لحد الاستخدام الأقصى.",
+    "promoServerError": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+  }
+}

@@ -1,0 +1,4 @@
+# Landing page components directory
+# Components: Navbar, HeroSection, HowItWorks, PricingSection, Footer
+# See: specs/003-landing-page/contracts/ui-contracts.md for exact JSX structures
+# Design tokens: docs/design-reference.md

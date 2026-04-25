@@ -1,0 +1,187 @@
+{
+  "auth": {
+    "tabs": {
+      "login": "Log in",
+      "signup": "Sign up"
+    },
+    "login": {
+      "email": "Email",
+      "password": "Password",
+      "submit": "Log In",
+      "forgotPassword": "Forgot Password?",
+      "or": "or",
+      "google": "Continue with Google",
+      "errors": {
+        "invalid": "Invalid email or password.",
+        "unverified": "Please verify your email before logging in.",
+        "locked": "Account locked. Try again in {minutes} minutes."
+      }
+    },
+    "signup": {
+      "fullName": "Full Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Create Account",
+      "or": "or",
+      "google": "Continue with Google",
+      "errors": {
+        "emailTaken": "An account with this email already exists.",
+        "passwordMismatch": "Passwords do not match.",
+        "passwordTooShort": "Password must be at least 8 characters."
+      }
+    },
+    "verification": {
+      "sent": "Check your email for a verification link.",
+      "resend": "Resend verification email",
+      "expired": "Your verification link has expired.",
+      "status": "Email not yet verified."
+    },
+    "reset": {
+      "trigger": "Forgot your password?",
+      "email": "Enter your email address",
+      "submit": "Send Reset Link",
+      "sent": "If an account exists, a reset link has been sent.",
+      "rateLimited": "Please wait before requesting another link.",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "save": "Save New Password",
+      "success": "Password updated. Please log in."
+    }
+  },
+  "landing": {
+    "navbar": {
+      "login": "Log in",
+      "start": "Start free",
+      "features": "Features"
+    },
+    "hero": {
+      "badge": "TRY FOR FREE — NO CREDIT CARD REQUIRED",
+      "title": "More Than Just a",
+      "titleAccent": "Downloader.",
+      "subtitle": "Download, Trim, and Convert. Get started with our basic tools for free.",
+      "cta": "Start Your Free Trial"
+    },
+    "howItWorks": {
+      "heading": "How It Works",
+      "step1Title": "Create Account",
+      "step1Desc": "Sign up for free and get 10 credits instantly.",
+      "step2Title": "Analyze Video",
+      "step2Desc": "Paste any YouTube link and we'll fetch all available formats.",
+      "step3Title": "Choose & Edit",
+      "step3Desc": "Select quality, format, and optionally trim your clip.",
+      "step4Title": "Download",
+      "step4Desc": "Get your file instantly — video, audio, or thumbnail."
+    },
+    "footer": {
+      "copyright": "© {year} Clipora. All rights reserved.",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "contact": "Contact Us"
+    }
+  },
+  "legal": {
+    "comingSoon": "Coming Soon",
+    "comingSoonSub": "This page is under construction. Check back soon."
+  },
+  "notFound": {
+    "heading": "404",
+    "message": "Oops! This page doesn't exist.",
+    "cta": "Go Home"
+  },
+  "dashboard": {
+    "placeholder": "https://www.youtube.com/watch?v=...",
+    "analyze": "Analyze",
+    "analyzing": "Analyzing...",
+    "startProcessing": "Start Processing",
+    "initializing": "Initializing...",
+    "downloading": "Downloading {percent}%",
+    "merging": "Merging...",
+    "trimming": "Trimming...",
+    "downloadReady": "Download Ready",
+    "downloaded": "Downloaded ✓",
+    "creditsRemaining": "{count} credits remaining",
+    "noActivity": "No activity yet",
+    "noActivitySub": "Your downloads will appear here",
+    "welcome": "Welcome to Clipora, {name}! 🎬",
+    "welcomeSub": "You have {credits} free credits to get started.",
+    "welcomeHint": "Paste a YouTube link below to begin.",
+    "emptyVideoHint": "Video preview will appear here after analysis",
+    "emptySettingsHint": "ANALYZE A LINK TO UNLOCK SETTINGS",
+    "trimSegment": "Trim Segment",
+    "trimPrecision": "PRECISION CLIP SELECTION",
+    "trimReset": "Reset",
+    "zeroCreditsTitle": "Out of Credits",
+    "zeroCreditsMessage": "Your credits have been used up. Thank you for trying Clipora!",
+    "zeroCreditsAction": "Got it",
+    "recentActivity": "Recent Activity",
+    "modeVideo": "Video",
+    "modeAudio": "Audio",
+    "modeThumbnail": "Thumbnail",
+    "qualityLabel": "Quality",
+    "formatLabel": "Format",
+    "estimatedSize": "Estimated Size ~{size}",
+    "estimatedTime": "Estimated Time {time}",
+    "fileExpired": "File expired",
+    "untitled": "Untitled",
+    "profile": "Profile",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "enableTrim": "Enable Trim (+1 credit)",
+    "trimValidation": "Start time must be less than end time",
+    "processingFailed": "Processing failed",
+    "credits": "credits",
+    "outputSettings": "Output Settings",
+    "pasteUrl": "Paste a YouTube URL above",
+    "videoTypeLabel": "Video Type",
+    "videoTypeVideoAudio": "Video + Audio",
+    "videoTypeVideoOnly": "Video Only",
+    "thumbnailFormatLabel": "Thumbnail Format",
+    "download": "Download",
+    "delete": "Delete",
+    "creditsLoadError": "Unable to load credits. Cached value displayed.",
+    "activityVideoAudio": "Video + Audio",
+    "activityVideoOnly": "Video Only",
+    "activityVideo": "Video",
+    "activityAudio": "Audio Only",
+    "activityThumbnail": "Thumbnail",
+    "activityDownload": "Download",
+    "trimOutputLabel": "Trim Output",
+    "trimOutputAudioOnly": "Audio Only"
+  },
+  "profile": {
+    "memberSince": "Member since {date}",
+    "creditsRemaining": "{n} credits remaining",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "saveChanges": "Save Changes",
+    "saving": "Saving…",
+    "successMessage": "Password updated successfully.",
+    "errorMismatch": "Passwords do not match.",
+    "errorMinLength": "Password must be at least 8 characters.",
+    "errorWrongPassword": "Current password is incorrect.",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "oauthNotice": "Your password is managed by your Google account.",
+    "lockoutNotice": "Too many failed attempts. Try again in 15 minutes.",
+    "logout": "Log Out",
+    "logoutTitle": "Are you sure you want to log out?",
+    "logoutDescription": "You will be signed out of your Clipora account.",
+    "logoutCancel": "Cancel",
+    "logoutConfirm": "Log Out",
+    "promoTitle": "Promo Code",
+    "promoSubtitle": "Enter a promo code to receive bonus credits",
+    "promoPlaceholder": "Enter promo code...",
+    "promoRedeem": "Redeem",
+    "promoRedeeming": "Redeeming...",
+    "promoSuccess": "Code redeemed successfully!",
+    "promoCreditsLabel": "credits",
+    "promoRedeemAnother": "Redeem another code",
+    "promoInvalidCode": "This code is invalid or does not exist.",
+    "promoAlreadyUsed": "You have already used this code.",
+    "promoExpired": "This code has expired.",
+    "promoMaxUses": "This code has reached its usage limit.",
+    "promoServerError": "Something went wrong. Please try again."
+  }
+}

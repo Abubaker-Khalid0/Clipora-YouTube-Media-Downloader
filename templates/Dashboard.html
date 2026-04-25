@@ -273,12 +273,13 @@
                         </button>
                     </div>
                     <div class="px-3 py-6">
-                        <div class="timeline-track">
-                            <div
-                                class="absolute top-0 bottom-0 left-[20%] right-[30%] bg-primary/15 border-x-2 border-primary">
+                        <div id="timelineTrack" class="timeline-track">
+                            <div id="timelineSelection"
+                                class="absolute top-0 bottom-0 bg-primary/15 border-x-2 border-primary"
+                                style="left: 0%; right: 0%;">
                             </div>
-                            <div class="timeline-handle left-[20%]"></div>
-                            <div class="timeline-handle left-[70%]"></div>
+                            <div id="startHandle" class="timeline-handle" style="left: 0%;"></div>
+                            <div id="endHandle" class="timeline-handle" style="left: 100%;"></div>
                         </div>
                         <div
                             class="flex justify-between mt-4 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">

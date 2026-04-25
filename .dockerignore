@@ -1,0 +1,53 @@
+# Clipora — Docker ignore patterns
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Environment & Secrets
+.env*
+*.env
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log*
+
+# Coverage
+coverage/
+
+# Temporary files
+*.tmp
+*.swp
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore

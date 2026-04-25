@@ -12,6 +12,11 @@ let currentJobId = null;
 let progressInterval = null;
 let ytPlayer = null;
 let isTrimEnabled = false;
+let csrfToken = null; // CSRF token for protected requests
+
+// Timeline drag state
+let isDragging = false;
+let activeHandle = null; // 'start' | 'end' | null
 
 // ========================================
 // DOM Elements
@@ -54,6 +59,93 @@ const formatPNG = document.getElementById('formatPNG');
 
 const startProcessingBtn = document.getElementById('startProcessingBtn');
 
+// Timeline elements
+const timelineTrack = document.getElementById('timelineTrack');
+const timelineSelection = document.getElementById('timelineSelection');
+const startHandle = document.getElementById('startHandle');
+const endHandle = document.getElementById('endHandle');
+
+// ========================================
+// CSRF Protection
+// ========================================
+
+async function fetchCSRFToken() {
+    /**
+     * Fetch a fresh CSRF token from the backend.
+     * Should be called on page load and after each protected request.
+     */
+    try {
+        const response = await fetch('/api/csrf-token');
+        const data = await response.json();
+        
+        if (response.ok && data.csrf_token) {
+            csrfToken = data.csrf_token;
+            console.log('CSRF token refreshed');
+            return true;
+        } else {
+            console.error('Failed to get CSRF token:', data);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error fetching CSRF token:', error);
+        return false;
+    }
+}
+
+async function fetchWithCSRF(url, options = {}) {
+    /**
+     * Wrapper around fetch() that automatically includes CSRF token.
+     * Refreshes token after each protected request.
+     * 
+     * Usage:
+     *   const response = await fetchWithCSRF('/api/endpoint', {
+     *       method: 'POST',
+     *       body: JSON.stringify(data)
+     *   });
+     */
+    
+    // Ensure we have a CSRF token for state-changing requests
+    const method = options.method?.toUpperCase() || 'GET';
+    const needsCSRF = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method);
+    
+    if (needsCSRF) {
+        // If no token, fetch one first
+        if (!csrfToken) {
+            const success = await fetchCSRFToken();
+            if (!success) {
+                throw new Error('Failed to obtain CSRF token');
+            }
+        }
+        
+        // Add CSRF token to headers
+        options.headers = {
+            ...options.headers,
+            'X-CSRF-Token': csrfToken
+        };
+    }
+    
+    // Make the request
+    const response = await fetch(url, options);
+    
+    // If CSRF token was used, refresh it for next request
+    if (needsCSRF && response.ok) {
+        // Refresh token in background (don't wait)
+        fetchCSRFToken().catch(err => console.error('Failed to refresh CSRF token:', err));
+    }
+    
+    // Handle CSRF errors specifically
+    if (response.status === 403) {
+        const data = await response.json().catch(() => ({}));
+        if (data.error && data.error.includes('CSRF')) {
+            // CSRF token expired or invalid - refresh and suggest retry
+            await fetchCSRFToken();
+            throw new Error('Security token expired. Please try again.');
+        }
+    }
+    
+    return response;
+}
+
 // ========================================
 // Utility Functions
 // ========================================
@@ -82,6 +174,95 @@ function formatFileSize(bytes) {
         return `${mb.toFixed(1)} MB`;
     }
     return `${(mb / 1024).toFixed(1)} GB`;
+}
+
+function getVideoBitrate(height) {
+    /**
+     * Get estimated video bitrate in Mbps based on resolution height
+     */
+    const bitrateMap = {
+        2160: 20,   // 4K
+        1440: 12,   // 2K
+        1080: 8,    // Full HD
+        720: 5,     // HD
+        480: 2.5,   // SD
+        360: 1,     // Low
+        240: 0.5,   // Very Low
+        144: 0.3    // Minimum
+    };
+    return bitrateMap[height] || 5; // Default to 720p bitrate
+}
+
+function calculateEstimatedSize() {
+    /**
+     * Calculate and display estimated file size based on:
+     * - Selected quality (resolution)
+     * - Video duration
+     * - Selected format
+     * - Whether audio is included
+     */
+    const estimatedSizeEl = document.getElementById('estimatedSize');
+    if (!estimatedSizeEl || !currentVideoData) {
+        if (estimatedSizeEl) estimatedSizeEl.textContent = '-- MB';
+        return;
+    }
+    
+    const duration = currentVideoData.duration_seconds || 0;
+    if (duration <= 0) {
+        estimatedSizeEl.textContent = '-- MB';
+        return;
+    }
+    
+    let estimatedMB = 0;
+    
+    if (currentMode === 'video') {
+        const quality = qualitySelect?.value || 'best';
+        const videoType = videoTypeSelect?.value || 'video_audio';
+        
+        // Determine video bitrate in Mbps
+        let videoBitrateMbps;
+        if (quality === 'best') {
+            const qualities = currentVideoData.available_qualities || [];
+            const maxQuality = qualities.length > 0 ? Math.max(...qualities) : 1080;
+            videoBitrateMbps = getVideoBitrate(maxQuality);
+        } else {
+            videoBitrateMbps = getVideoBitrate(parseInt(quality));
+        }
+        
+        // Calculate video size: bitrate (Mbps) * duration (seconds) / 8 = MB
+        const videoSizeMB = (videoBitrateMbps * duration) / 8;
+        estimatedMB += videoSizeMB;
+        
+        // Add audio if video_audio mode
+        if (videoType === 'video_audio') {
+            const audioBitrateKbps = 160; // Standard audio bitrate
+            const audioSizeMB = (audioBitrateKbps * duration) / 8000;
+            estimatedMB += audioSizeMB;
+        }
+        
+    } else if (currentMode === 'audio_only') {
+        // Audio only mode
+        const audioBitrateKbps = currentVideoData.best_audio_bitrate || 160;
+        estimatedMB = (audioBitrateKbps * duration) / 8000;
+        
+    } else if (currentMode === 'thumbnail') {
+        // Thumbnail: fixed estimate
+        estimatedMB = 1; // ~1 MB typical
+    }
+    
+    // Format output
+    if (estimatedMB < 1) {
+        estimatedSizeEl.textContent = `~${Math.round(estimatedMB * 1024)} KB`;
+    } else if (estimatedMB >= 1000) {
+        estimatedSizeEl.textContent = `~${(estimatedMB / 1024).toFixed(2)} GB`;
+    } else {
+        estimatedSizeEl.textContent = `~${estimatedMB.toFixed(1)} MB`;
+    }
+}
+
+// Alias for backward compatibility
+function updateEstimatedSize() {
+    calculateEstimatedSize();
 }
 
 function formatDate(isoString) {
@@ -173,6 +354,7 @@ function switchToVideoMode() {
     
     // Update all mode buttons
     updateModeButtons();
+    calculateEstimatedSize();
 }
 
 function switchToAudioMode() {
@@ -189,6 +371,7 @@ function switchToAudioMode() {
     
     // Update all mode buttons
     updateModeButtons();
+    calculateEstimatedSize();
 }
 
 function switchToThumbnailMode() {
@@ -205,6 +388,7 @@ function switchToThumbnailMode() {
     
     // Update all mode buttons
     updateModeButtons();
+    calculateEstimatedSize();
 }
 
 function updateModeButtons() {
@@ -340,35 +524,34 @@ function handleTrimToggle() {
     isTrimEnabled = trimToggle.checked;
     
     if (isTrimEnabled) {
-        // Show trim section
         trimSegmentSection.classList.remove('hidden');
         
-        // Reset times to 00:00:00
         startTimeInput.value = '00:00:00';
         endTimeInput.value = '00:00:00';
         
-        // Initialize YouTube player if we have video data
         if (currentVideoData && currentVideoData.video_id) {
             initYouTubePlayer(currentVideoData.video_id);
         }
-    } else {
-        // Hide trim section
-        trimSegmentSection.classList.add('hidden');
         
-        // Destroy player
+        initTimeline();
+    } else {
+        trimSegmentSection.classList.add('hidden');
         destroyYouTubePlayer();
+        destroyTimeline();
     }
 }
 
 function handleResetTrim() {
     startTimeInput.value = '00:00:00';
     endTimeInput.value = '00:00:00';
+    updateTimelineFromInputs();
 }
 
 function handleSetStart() {
     if (ytPlayer && ytPlayer.getCurrentTime) {
         const currentTime = Math.floor(ytPlayer.getCurrentTime());
         startTimeInput.value = formatTimeForInput(currentTime);
+        updateTimelineFromInputs();
     }
 }
 
@@ -376,7 +559,162 @@ function handleSetEnd() {
     if (ytPlayer && ytPlayer.getCurrentTime) {
         const currentTime = Math.floor(ytPlayer.getCurrentTime());
         endTimeInput.value = formatTimeForInput(currentTime);
+        updateTimelineFromInputs();
     }
+}
+
+// ========================================
+// Timeline Drag Functionality
+// ========================================
+
+function parseTimeToSeconds(timeStr) {
+    if (!timeStr || typeof timeStr !== 'string') return 0;
+    const parts = timeStr.split(':').map(Number);
+    if (parts.length === 3) {
+        return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    } else if (parts.length === 2) {
+        return parts[0] * 60 + parts[1];
+    }
+    return 0;
+}
+
+function initTimeline() {
+    if (!timelineTrack || !startHandle || !endHandle || !timelineSelection) return;
+    
+    const duration = currentVideoData?.duration_seconds || 0;
+    if (duration <= 0) {
+        timelineTrack.style.opacity = '0.5';
+        timelineTrack.style.pointerEvents = 'none';
+        return;
+    }
+    
+    timelineTrack.style.opacity = '1';
+    timelineTrack.style.pointerEvents = 'auto';
+    
+    startHandle.style.left = '0%';
+    endHandle.style.left = '100%';
+    timelineSelection.style.left = '0%';
+    timelineSelection.style.right = '0%';
+    
+    startHandle.addEventListener('mousedown', (e) => startDrag(e, 'start'));
+    endHandle.addEventListener('mousedown', (e) => startDrag(e, 'end'));
+    startHandle.addEventListener('touchstart', (e) => startDrag(e, 'start'), { passive: false });
+    endHandle.addEventListener('touchstart', (e) => startDrag(e, 'end'), { passive: false });
+    
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('mouseup', stopDrag);
+    document.addEventListener('touchmove', onDrag, { passive: false });
+    document.addEventListener('touchend', stopDrag);
+    
+    startTimeInput.addEventListener('input', onTimeInputChange);
+    startTimeInput.addEventListener('change', onTimeInputChange);
+    endTimeInput.addEventListener('input', onTimeInputChange);
+    endTimeInput.addEventListener('change', onTimeInputChange);
+}
+
+function destroyTimeline() {
+    isDragging = false;
+    activeHandle = null;
+    
+    document.removeEventListener('mousemove', onDrag);
+    document.removeEventListener('mouseup', stopDrag);
+    document.removeEventListener('touchmove', onDrag);
+    document.removeEventListener('touchend', stopDrag);
+}
+
+function startDrag(e, handle) {
+    e.preventDefault();
+    isDragging = true;
+    activeHandle = handle;
+    document.body.style.cursor = 'grabbing';
+    document.body.style.userSelect = 'none';
+}
+
+function stopDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+    activeHandle = null;
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+}
+
+function onDrag(e) {
+    if (!isDragging || !activeHandle || !timelineTrack) return;
+    e.preventDefault();
+    
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const rect = timelineTrack.getBoundingClientRect();
+    const trackWidth = rect.width;
+    
+    let position = clientX - rect.left;
+    position = Math.max(0, Math.min(position, trackWidth));
+    let percent = (position / trackWidth) * 100;
+    
+    const duration = currentVideoData?.duration_seconds || 0;
+    if (duration <= 0) return;
+    
+    const currentStartPercent = parseFloat(startHandle.style.left) || 0;
+    const currentEndPercent = parseFloat(endHandle.style.left) || 100;
+    
+    const minGap = 1;
+    
+    if (activeHandle === 'start') {
+        percent = Math.min(percent, currentEndPercent - minGap);
+        percent = Math.max(0, percent);
+        startHandle.style.left = `${percent}%`;
+        
+        const seconds = Math.floor((percent / 100) * duration);
+        startTimeInput.value = formatTimeForInput(seconds);
+    } else if (activeHandle === 'end') {
+        percent = Math.max(percent, currentStartPercent + minGap);
+        percent = Math.min(100, percent);
+        endHandle.style.left = `${percent}%`;
+        
+        const seconds = Math.floor((percent / 100) * duration);
+        endTimeInput.value = formatTimeForInput(seconds);
+    }
+    
+    updateSelectionArea();
+}
+
+function updateSelectionArea() {
+    if (!timelineSelection || !startHandle || !endHandle) return;
+    
+    const startPercent = parseFloat(startHandle.style.left) || 0;
+    const endPercent = parseFloat(endHandle.style.left) || 100;
+    
+    timelineSelection.style.left = `${startPercent}%`;
+    timelineSelection.style.right = `${100 - endPercent}%`;
+}
+
+function updateTimelineFromInputs() {
+    if (!timelineTrack || !startHandle || !endHandle || !timelineSelection) return;
+    
+    const duration = currentVideoData?.duration_seconds || 0;
+    if (duration <= 0) return;
+    
+    let startSeconds = parseTimeToSeconds(startTimeInput.value);
+    let endSeconds = parseTimeToSeconds(endTimeInput.value);
+    
+    startSeconds = Math.max(0, Math.min(startSeconds, duration));
+    endSeconds = Math.max(0, Math.min(endSeconds, duration));
+    
+    if (startSeconds > endSeconds && endSeconds > 0) {
+        startSeconds = endSeconds;
+        startTimeInput.value = formatTimeForInput(startSeconds);
+    }
+    
+    const startPercent = (startSeconds / duration) * 100;
+    const endPercent = endSeconds === 0 ? 100 : (endSeconds / duration) * 100;
+    
+    startHandle.style.left = `${startPercent}%`;
+    endHandle.style.left = `${endPercent}%`;
+    
+    updateSelectionArea();
+}
+
+function onTimeInputChange() {
+    updateTimelineFromInputs();
 }
 
 // ========================================
@@ -399,7 +737,7 @@ async function analyzeVideo() {
     setAnalyzeLoading(true);
     
     try {
-        const response = await fetch('/api/analyze', {
+        const response = await fetchWithCSRF('/api/analyze', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -480,12 +818,15 @@ function populateVideoData(data) {
     }
     
     // Update audio mode info if available
-    if (data.best_audio_label) {
-        const audioDetected = document.getElementById('audioDetected');
-        if (audioDetected) {
-            audioDetected.textContent = `Detected: ${data.best_audio_label}`;
-        }
+    const audioDetected = document.getElementById('audioDetected');
+    if (audioDetected) {
+        const label = data.best_audio_label || 'M4A/AAC';
+        const bitrate = data.best_audio_bitrate ? `${data.best_audio_bitrate} kbps` : '~128 kbps';
+        audioDetected.textContent = `Detected: ${label.toUpperCase()} • ${bitrate}`;
     }
+    
+    // Update estimated file size
+    calculateEstimatedSize();
 }
 
 async function startProcessing() {
@@ -529,7 +870,7 @@ async function startProcessing() {
         startProcessingBtn.disabled = true;
         startProcessingBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Starting...';
         
-        const response = await fetch('/api/jobs/create', {
+        const response = await fetchWithCSRF('/api/jobs/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -722,13 +1063,22 @@ urlInput.addEventListener('keypress', (e) => {
     }
 });
 
-// Mode switching buttons
+// Mode Button Event Listeners
+// Naming: mode{TargetMode}{PanelContext}
+// - TargetMode: which mode to switch TO (Video/Audio/Thumbnail)
+// - PanelContext: which panel contains this button (empty=Video, Audio, Thumb)
+
+// Buttons in Video Mode panel
 document.getElementById('modeVideo')?.addEventListener('click', switchToVideoMode);
 document.getElementById('modeAudio')?.addEventListener('click', switchToAudioMode);
 document.getElementById('modeThumbnail')?.addEventListener('click', switchToThumbnailMode);
+
+// Buttons in Audio Mode panel
 document.getElementById('modeVideoAudio')?.addEventListener('click', switchToVideoMode);
 document.getElementById('modeAudioAudio')?.addEventListener('click', switchToAudioMode);
-document.getElementById('modeThumbnailAudio')?.addEventListener('click', switchToAudioMode);
+document.getElementById('modeThumbnailAudio')?.addEventListener('click', switchToThumbnailMode);
+
+// Buttons in Thumbnail Mode panel
 document.getElementById('modeVideoThumb')?.addEventListener('click', switchToVideoMode);
 document.getElementById('modeAudioThumb')?.addEventListener('click', switchToAudioMode);
 document.getElementById('modeThumbnailThumb')?.addEventListener('click', switchToThumbnailMode);
@@ -743,6 +1093,10 @@ resetTrimBtn?.addEventListener('click', handleResetTrim);
 setStartBtn?.addEventListener('click', handleSetStart);
 setEndBtn?.addEventListener('click', handleSetEnd);
 
+// Quality and video type changes (update estimated size)
+qualitySelect?.addEventListener('change', calculateEstimatedSize);
+videoTypeSelect?.addEventListener('change', calculateEstimatedSize);
+
 // Start processing button
 startProcessingBtn?.addEventListener('click', startProcessing);
 
@@ -750,7 +1104,10 @@ startProcessingBtn?.addEventListener('click', startProcessing);
 // Initialize
 // ========================================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Fetch CSRF token first
+    await fetchCSRFToken();
+    
     // Set initial mode to video
     switchToVideoMode();
     

@@ -1,0 +1,59 @@
+# Clipora — Root .gitignore
+# Covers: Next.js frontend, Python backend, Supabase, and OS artifacts
+
+# ─── Environment & Secrets ──────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env.local
+frontend/.env.*.local
+# Exception: .env.development.local is committed intentionally — it contains
+# only the localhost BACKEND_URL override (no secrets) so new developers get
+# working defaults on their first `npm run dev` without any manual setup.
+!frontend/.env.development.local
+*.env
+
+# ─── Node.js / Next.js ───────────────────────────────────────────────────────
+node_modules/
+.next/
+out/
+dist/
+build/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── Python / FastAPI ────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+*.egg-info/
+.eggs/
+
+# ─── Temporary Files (Backend Storage) ───────────────────────────────────────
+backend/storage/temp/*
+!backend/storage/temp/.gitkeep
+
+# ─── Supabase ────────────────────────────────────────────────────────────────
+supabase/.branches/
+supabase/.temp/
+
+# ─── OS Artifacts ────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+
+# ─── IDE ─────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.iml
+
+# Markdown files
+*.md

@@ -1,0 +1,27 @@
+# Clipora — Backend Dependencies
+# All versions are pinned for reproducibility.
+#
+# To update a package:
+#   1. Change the version below
+#   2. pip install -r requirements.txt
+#   3. Test thoroughly before committing
+#
+# yt-dlp in particular: it releases daily and extractor changes can be breaking.
+# Always test against live YouTube URLs after updating.
+
+# ── Web framework ──────────────────────────────────────────────────────────────
+fastapi==0.115.12
+uvicorn[standard]==0.34.3
+
+# ── Validation ─────────────────────────────────────────────────────────────────
+# Pinned explicitly — FastAPI upgrades must not silently pull in Pydantic v3.
+pydantic==2.10.2
+
+# ── Environment ────────────────────────────────────────────────────────────────
+python-dotenv==1.0.1
+
+# ── YouTube downloader ─────────────────────────────────────────────────────────
+yt-dlp==2025.3.31
+
+# ── Rate limiting ──────────────────────────────────────────────────────────────
+slowapi==0.1.9

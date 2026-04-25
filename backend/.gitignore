@@ -1,14 +1,33 @@
-# Python
+# Python bytecode
 *.pyc
+*.pyo
+*.pyd
 __pycache__/
-.venv/
-*.egg-info/
 
-# Environment secrets — NEVER commit these
+# Virtual environments
+.venv/
+venv/
+env/
+.env_folder/
+
+# Environment secrets — NEVER commit
 .env
 .env.*
 !.env.example
 
-# User data
-storage/temp/
+# User download storage
 storage/
+storage/temp/
+*.mp4
+*.mp3
+*.webm
+*.m4a
+*.opus
+
+# IDE and OS files
+.DS_Store
+.idea/
+*.swp
+
+# Pyright / type checker local config
+pyrightconfig.json
