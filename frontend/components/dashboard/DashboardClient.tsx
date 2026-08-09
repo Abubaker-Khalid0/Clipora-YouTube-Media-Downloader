@@ -648,11 +648,19 @@ export function DashboardClient({
       ) : (
         /* ── Video loaded: URL bar at top → workspace grid ── */
         <div className="space-y-6">
-          <UrlInputBar
-            onAnalyze={handleAnalyze}
-            isAnalyzing={isAnalyzing}
-            disabled={!!activeJobId}
-          />
+          {/* Same max width and centring as the empty state. Unconstrained, the
+              field spanned the full 1440px container and left a long dead gap
+              between the placeholder and the submit button. mx-auto matters:
+              without it the block aligns to the writing direction's start, which
+              pinned it against the right edge in Arabic. Centring also keeps the
+              field in place when a video loads instead of making it jump. */}
+          <div className="mx-auto w-full max-w-2xl">
+            <UrlInputBar
+              onAnalyze={handleAnalyze}
+              isAnalyzing={isAnalyzing}
+              disabled={!!activeJobId}
+            />
+          </div>
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}

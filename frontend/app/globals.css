@@ -71,6 +71,16 @@
   --color-dash-darker: #1e293b;    /* slate-800 */
   --color-dash-text: #0f172a;      /* slate-900 */
 
+  /* ── Theme tokens registered as real colours ────────────────────────────
+     Registering these means Tailwind generates bg-/text-/border- utilities AND
+     supports the opacity modifier. Hand-written `.bg-canvas` could not:
+     `bg-canvas/80` on the sticky navbars produced no rule at all, so the header
+     had no translucent background and the mobile drawer was fully transparent.
+     The remaining tokens stay as hand-written utilities on purpose, because
+     several of them decouple fill from text (bg-tint-warn vs text-tint-warn). */
+  --color-canvas: var(--ink-bg);
+  --color-canvas-soft: var(--ink-bg-soft);
+
   /* Font */
   --font-manrope: var(--font-manrope);
 }
@@ -346,20 +356,26 @@
      Lines:      hairline → hairline-strong
      ─────────────────────────────────────────────────────────────────────── */
   :root {
-    --ink-bg: #ffffff;
-    --ink-bg-soft: #f6f6f8;
+    /* The canvas is deliberately NOT pure white. It used to be #ffffff, the
+       same value as --panel, so every card sat on an identically coloured page
+       and only a 10%-alpha hairline separated them — the panels effectively
+       vanished. A soft neutral page with white cards is what gives the light
+       theme its elevation. */
+    --ink-bg: #f4f5f7;
+    --ink-bg-soft: #eceef2;
 
     --ink: #0b0b0f;
-    --ink-2: rgba(15, 17, 26, 0.78);
-    --ink-3: rgba(15, 17, 26, 0.6);
-    --ink-4: rgba(15, 17, 26, 0.45);
+    --ink-2: rgba(15, 17, 26, 0.8);
+    --ink-3: rgba(15, 17, 26, 0.64);
+    /* Meta labels ("OUTPUT SETTINGS") were too faint to read at 0.45. */
+    --ink-4: rgba(15, 17, 26, 0.52);
 
     --veil: rgba(11, 11, 16, 0.035);
-    --veil-2: rgba(11, 11, 16, 0.055);
-    --veil-3: rgba(11, 11, 16, 0.085);
+    --veil-2: rgba(11, 11, 16, 0.06);
+    --veil-3: rgba(11, 11, 16, 0.095);
 
-    --hairline: rgba(11, 11, 16, 0.1);
-    --hairline-strong: rgba(11, 11, 16, 0.18);
+    --hairline: rgba(15, 23, 42, 0.13);
+    --hairline-strong: rgba(15, 23, 42, 0.22);
 
     /* Decorative layers are toned down on a light canvas: at dark-mode strength
        the aurora reads as muddy smudges rather than light sources. */
@@ -382,10 +398,12 @@
     --brand: #ea2a33;
 
     /* Card fill for opaque panels (dashboard). Distinct from --surface-* which
-       is a translucent glass gradient. */
+       is a translucent glass gradient. Pure white now reads as raised because
+       the canvas behind it is not. */
     --panel: #ffffff;
     --panel-raised: #ffffff;
-    --panel-sunken: #f4f4f7;
+    /* Recessed areas *inside* a white card: inputs, selects, segmented tracks. */
+    --panel-sunken: #f1f3f6;
 
     /* Brand + status tints. A raw `bg-red-50` is invisible on a dark canvas, so
        every tinted state resolves through a token instead. */
@@ -399,10 +417,12 @@
     --tint-err: rgba(239, 68, 68, 0.09);
     --text-err: #cf1f28;
 
-    --shadow-panel: 0 1px 2px rgba(11, 11, 16, 0.04), 0 8px 24px -12px rgba(11, 11, 16, 0.1);
+    /* Two-part shadow: a tight contact line plus a wide soft spread. A single
+       blurred shadow reads as fog rather than lift. */
+    --shadow-panel: 0 1px 2px rgba(15, 23, 42, 0.06), 0 12px 28px -14px rgba(15, 23, 42, 0.16);
     /* Shadow *colour* only, so components keep their own shadow-lg/-md sizing.
        A slate-200 shadow turns milky on a dark canvas. */
-    --shadow-tint: rgba(15, 23, 42, 0.1);
+    --shadow-tint: rgba(15, 23, 42, 0.14);
   }
 
   .dark {
@@ -484,19 +504,14 @@
   .bg-veil-3 {
     background-color: var(--veil-3);
   }
-  .bg-canvas {
-    background-color: var(--ink-bg);
-  }
+  /* bg-canvas / bg-canvas-soft / text-canvas now come from the @theme block
+     above, so they support opacity modifiers. */
+
   /* Inverted pair — a high-contrast button that flips with the theme. */
   .bg-ink {
     background-color: var(--ink);
   }
-  .text-canvas {
-    color: var(--ink-bg);
-  }
-  .bg-canvas-soft {
-    background-color: var(--ink-bg-soft);
-  }
+
   .border-hairline {
     border-color: var(--hairline);
   }

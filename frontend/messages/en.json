@@ -3,7 +3,7 @@
     "navbar": {
       "ariaLabel": "Main navigation",
       "toggleMenu": "Toggle navigation menu",
-      "start": "Open the app",
+      "start": "Start free",
       "features": "Features",
       "howItWorks": "How it works",
       "faq": "FAQ"
@@ -13,7 +13,7 @@
       "titleLead": "More than just a",
       "titleAccent": "downloader.",
       "subtitle": "Pull any YouTube video in up to 4K, lift the audio, cut an exact segment, grab the thumbnail, or pull the full transcript. One paste, one click, done.",
-      "ctaPrimary": "Open the app",
+      "ctaPrimary": "Start free",
       "ctaSecondary": "See how it works",
       "trust": {
         "noSignup": "No sign-up required",
@@ -150,7 +150,7 @@
       "title": "Stop fighting sketchy",
       "titleAccent": "download sites.",
       "description": "No pop-ups, no fake buttons, no watermark, no inbox harvesting. Paste a link and get your file.",
-      "cta": "Open the app",
+      "cta": "Start free",
       "note": "Works instantly in your browser"
     },
     "footer": {
@@ -158,7 +158,7 @@
       "productHeading": "Product",
       "legalHeading": "Legal",
       "links": {
-        "dashboard": "Open the app",
+        "dashboard": "Dashboard",
         "features": "Features",
         "howItWorks": "How it works",
         "faq": "FAQ",
