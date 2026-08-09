@@ -22,28 +22,13 @@
       }
     },
     "showcase": {
-      "urlPlaceholder": "الصق رابط يوتيوب…",
-      "analyze": "تحليل",
-      "analyzing": "جارٍ التحليل",
-      "qualityLabel": "الجودة",
       "previewHint": "تظهر المعاينة بعد التحليل",
-      "videoTitle": "Never Gonna Give You Up (4K Remaster)",
-      "videoChannel": "Rick Astley",
-      "readyFile": "حفظ الملف",
-      "waiting": "في الانتظار",
       "status": {
         "typing": "خامل",
-        "analyzing": "يعمل",
-        "analyzed": "جاهز",
+        "analyzing": "قراءة",
+        "ready": "جاهز",
         "processing": "يعمل",
         "done": "اكتمل"
-      },
-      "stage": {
-        "typing": "في انتظار رابط",
-        "analyzing": "قراءة الصيغ",
-        "analyzed": "جاهز للمعالجة",
-        "processing": "جارٍ التحميل",
-        "ready": "تم"
       }
     },
     "marquee": {

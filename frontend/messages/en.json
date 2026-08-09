@@ -22,28 +22,13 @@
       }
     },
     "showcase": {
-      "urlPlaceholder": "Paste a YouTube link…",
-      "analyze": "Analyze",
-      "analyzing": "Analyzing",
-      "qualityLabel": "Quality",
       "previewHint": "Preview appears after analysis",
-      "videoTitle": "Never Gonna Give You Up (4K Remaster)",
-      "videoChannel": "Rick Astley",
-      "readyFile": "Save file",
-      "waiting": "Waiting",
       "status": {
         "typing": "Idle",
-        "analyzing": "Working",
-        "analyzed": "Ready",
+        "analyzing": "Reading",
+        "ready": "Ready",
         "processing": "Working",
         "done": "Complete"
-      },
-      "stage": {
-        "typing": "Waiting for a link",
-        "analyzing": "Reading formats",
-        "analyzed": "Ready to process",
-        "processing": "Downloading",
-        "ready": "Done"
       }
     },
     "marquee": {
