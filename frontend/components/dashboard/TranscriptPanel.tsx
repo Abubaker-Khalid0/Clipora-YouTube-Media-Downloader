@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
@@ -81,7 +81,7 @@ function downloadFile(content: string, filename: string, mimeType: string) {
 const RTL_LANGUAGE_CODES = new Set(['ar', 'he', 'fa', 'ur', 'ps', 'sd', 'yi', 'ku'])
 
 function isRtlLanguage(langCode: string): boolean {
-  // Check exact match or prefix (e.g. 'ar-SA' â†’ 'ar')
+  // Check exact match or prefix (e.g. 'ar-SA' → 'ar')
   return RTL_LANGUAGE_CODES.has(langCode) || RTL_LANGUAGE_CODES.has(langCode.split('-')[0])
 }
 
@@ -160,7 +160,7 @@ export function TranscriptPanel({
     onFetch(langCode)
   }
 
-  // â”€â”€ Loading State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Loading State ──────────────────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="bg-panel rounded-2xl p-5 shadow-lg shadow-[var(--shadow-tint)] ring-1 ring-hairline">
@@ -183,7 +183,7 @@ export function TranscriptPanel({
     )
   }
 
-  // â”€â”€ Error State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Error State ────────────────────────────────────────────────────────
   if (error) {
     return (
       <div className="bg-panel rounded-2xl p-5 shadow-lg shadow-[var(--shadow-tint)] ring-1 ring-hairline">
@@ -207,7 +207,7 @@ export function TranscriptPanel({
     )
   }
 
-  // â”€â”€ Empty / Not Fetched State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Empty / Not Fetched State ──────────────────────────────────────────
   if (!transcriptData) {
     return (
       <div className="bg-panel rounded-2xl p-5 shadow-lg shadow-[var(--shadow-tint)] ring-1 ring-hairline">
@@ -230,7 +230,7 @@ export function TranscriptPanel({
     )
   }
 
-  // â”€â”€ Transcript Loaded â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Transcript Loaded ──────────────────────────────────────────────────
   return (
     <div className="bg-panel rounded-2xl p-5 shadow-lg shadow-[var(--shadow-tint)] ring-1 ring-hairline">
 
@@ -335,7 +335,7 @@ export function TranscriptPanel({
 
       {/* Snippet count */}
       <p className="text-[10px] text-ink-4 mb-2 font-medium">
-        {transcriptData.snippets.length} {t('transcriptLines')} Â· {transcriptData.language}
+        {transcriptData.snippets.length} {t('transcriptLines')} · {transcriptData.language}
       </p>
 
       {/* Search bar */}

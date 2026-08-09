@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
@@ -10,7 +10,7 @@ import { MaterialIcon } from '@/components/ui/MaterialIcon'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 /**
- * Navbar â€” scroll-aware landing header.
+ * Navbar — scroll-aware landing header.
  *
  * Transparent over the hero, then condenses to a blurred bar once the visitor
  * scrolls. Hosts the LanguageSwitcher inline; it used to float over this bar

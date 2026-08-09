@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
@@ -6,10 +6,10 @@ import { useTranslations } from 'next-intl'
 import { MaterialIcon } from '@/components/ui/MaterialIcon'
 
 /**
- * AppShowcase â€” a self-playing mock of the real Clipora workflow.
+ * AppShowcase — a self-playing mock of the real Clipora workflow.
  *
  * Replaces the old hero's blurred stock photo: instead of decorating the page,
- * it demonstrates the product (paste â†’ analyze â†’ pick quality â†’ download).
+ * it demonstrates the product (paste → analyze → pick quality → download).
  *
  * Everything is drawn with CSS so the hero has zero external image requests and
  * no layout shift. The loop pauses on `prefers-reduced-motion` and settles on
@@ -51,7 +51,7 @@ export function AppShowcase() {
   const [typed, setTyped] = useState(reduceMotion ? DEMO_URL : '')
   const [progress, setProgress] = useState(reduceMotion ? 100 : 0)
 
-  // â”€â”€ Phase driver â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Phase driver ────────────────────────────────────────────────────────
   // The loop's visible state is reset here, inside the timeout, rather than in
   // the effect bodies below: a synchronous setState in an effect body triggers
   // a cascading render (react-hooks/set-state-in-effect).
@@ -68,7 +68,7 @@ export function AppShowcase() {
     return () => clearTimeout(timer)
   }, [phase, reduceMotion])
 
-  // â”€â”€ Typing animation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Typing animation ────────────────────────────────────────────────────
   useEffect(() => {
     if (reduceMotion || phase !== 'typing') return
     let index = 0
@@ -80,7 +80,7 @@ export function AppShowcase() {
     return () => clearInterval(id)
   }, [phase, reduceMotion])
 
-  // â”€â”€ Progress animation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Progress animation ──────────────────────────────────────────────────
   useEffect(() => {
     if (reduceMotion || phase !== 'processing') return
 
@@ -104,7 +104,7 @@ export function AppShowcase() {
       />
 
       <div className="surface-solid noise-overlay relative overflow-hidden rounded-2xl shadow-[0_40px_120px_-30px_rgba(0,0,0,0.9)]">
-        {/* â”€â”€ Window chrome â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── Window chrome ─────────────────────────────────────────────── */}
         <div className="flex items-center gap-3 border-b border-hairline bg-veil px-4 py-3">
           <div className="flex gap-1.5" aria-hidden="true">
             <span className="h-2.5 w-2.5 rounded-full bg-veil-3" />
@@ -118,7 +118,7 @@ export function AppShowcase() {
           <StatusPill phase={phase} label={t(`status.${phase}`)} />
         </div>
 
-        {/* â”€â”€ Body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── Body ──────────────────────────────────────────────────────── */}
         <div className="space-y-4 p-4 sm:p-6">
           {/* URL bar */}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -175,7 +175,7 @@ export function AppShowcase() {
                     transition={{ duration: 0.5, ease: EASE }}
                     className="absolute inset-0"
                   >
-                    {/* Abstract "frame" â€” colour bands evoke video without an image request */}
+                    {/* Abstract "frame" — colour bands evoke video without an image request */}
                     <div className="absolute inset-0 bg-[conic-gradient(from_210deg_at_35%_30%,#ea2a33_0deg,#ff6a3d_70deg,#7850ff_180deg,#0c0c10_300deg)] opacity-40" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
@@ -190,7 +190,7 @@ export function AppShowcase() {
                       <p className="truncate text-[11px] font-bold text-ink">{t('videoTitle')}</p>
                       <div className="mt-1 flex items-center gap-2 text-[10px] text-ink-3">
                         <span>{t('videoChannel')}</span>
-                        <span aria-hidden="true">Â·</span>
+                        <span aria-hidden="true">·</span>
                         <span className="font-mono">3:33</span>
                       </div>
                     </div>

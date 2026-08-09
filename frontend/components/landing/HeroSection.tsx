@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
@@ -7,7 +7,7 @@ import { MaterialIcon } from '@/components/ui/MaterialIcon'
 import { AppShowcase } from '@/components/landing/AppShowcase'
 
 /**
- * HeroSection â€” dark canvas, brand-red aurora, headline, dual CTA, live product mock.
+ * HeroSection — dark canvas, brand-red aurora, headline, dual CTA, live product mock.
  *
  * Replaces the previous version, which centred a glass card over a blurred
  * stock photo loaded from a third-party Google CDN and hard-coded its English
@@ -30,7 +30,7 @@ export function HeroSection({ locale }: { locale: string }) {
 
   return (
     <section className="relative overflow-hidden pb-20 pt-14 sm:pb-28 sm:pt-20">
-      {/* â”€â”€ Background layers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Background layers ─────────────────────────────────────────────── */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
         <div className="grid-lines absolute inset-0" />
         <div className="aurora-blob aurora-blob--brand start-[-10%] top-[-18%] h-[520px] w-[520px]" />
@@ -41,7 +41,7 @@ export function HeroSection({ locale }: { locale: string }) {
       </div>
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        {/* â”€â”€ Announcement badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── Announcement badge ──────────────────────────────────────────── */}
         <motion.div {...rise(0)} className="flex justify-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-hairline bg-veil-2 px-3.5 py-1.5 backdrop-blur">
             <span className="relative flex h-1.5 w-1.5">
@@ -54,7 +54,7 @@ export function HeroSection({ locale }: { locale: string }) {
           </span>
         </motion.div>
 
-        {/* â”€â”€ Headline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── Headline ────────────────────────────────────────────────────── */}
         <motion.h1
           {...rise(0.08)}
           className="font-display mx-auto mt-7 max-w-4xl text-center text-[2.6rem] font-extrabold leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.5rem]"
@@ -71,7 +71,7 @@ export function HeroSection({ locale }: { locale: string }) {
           {t('subtitle')}
         </motion.p>
 
-        {/* â”€â”€ CTAs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── CTAs ────────────────────────────────────────────────────────── */}
         <motion.div
           {...rise(0.24)}
           className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
@@ -97,7 +97,7 @@ export function HeroSection({ locale }: { locale: string }) {
           </a>
         </motion.div>
 
-        {/* â”€â”€ Trust row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── Trust row ───────────────────────────────────────────────────── */}
         <motion.ul
           {...rise(0.32)}
           className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5"
@@ -110,7 +110,7 @@ export function HeroSection({ locale }: { locale: string }) {
           ))}
         </motion.ul>
 
-        {/* â”€â”€ Product mock â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── Product mock ────────────────────────────────────────────────── */}
         <motion.div
           initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}

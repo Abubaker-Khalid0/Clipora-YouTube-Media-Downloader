@@ -120,12 +120,12 @@ export function DashboardClient({
 }: DashboardClientProps) {
   const t = useTranslations('dashboard')
 
-  // â”€â”€ Analysis â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Analysis ──────────────────────────────────────────────────────────────
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [video, setVideo] = useState<VideoMetadata | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  // â”€â”€ Output â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Output ──────────────────────────────────────────────────────────────
   // `output` is what the user asked for; the backend mode is derived from it and
   // the trim flag in buildJobPayload(). Keeping them separate is what removed
   // the old activeFeature/mode/videoType three-way overlap.
@@ -135,24 +135,24 @@ export function DashboardClient({
   const [selectedQuality, setSelectedQuality] = useState<string | null>(null)
   const [selectedFormat, setSelectedFormat] = useState<string | null>(null)
 
-  // â”€â”€ Trim â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Trim ──────────────────────────────────────────────────────────────────
   const [trimEnabled, setTrimEnabled] = useState(false)
   const [trimStart, setTrimStart] = useState(0)
   const [trimEnd, setTrimEnd] = useState(0)
   const [includeTrimTranscript, setIncludeTrimTranscript] = useState(false)
 
-  // â”€â”€ Player â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Player ──────────────────────────────────────────────────────────────
   const playerRef = useRef<VideoPlayerHandle | null>(null)
   const [playerTime, setPlayerTime] = useState(0)
   const [loopTrim, setLoopTrim] = useState(false)
 
-  // â”€â”€ Job state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Job state ─────────────────────────────────────────────────────────────
   const [activeJobId, setActiveJobId] = useState<string | null>(null)
   const [buttonState, setButtonState] = useState<ButtonState>('idle')
   const [fileId, setFileId] = useState<string | null>(null)
 
 
-  // â”€â”€ Transcript state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Transcript state ──────────────────────────────────────────────────────
   const [transcriptData, setTranscriptData] = useState<{
     snippets: Array<{ text: string; start: number; duration: number }>
     availableLanguages: Array<{ code: string; name: string; isGenerated: boolean }>
@@ -171,7 +171,7 @@ export function DashboardClient({
   // are parked until the backend gains a burn-in step, so the state, the caption
   // fetch handler and the overlay wiring are gone rather than left dangling.
 
-  // â”€â”€ Download Queue â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Download Queue ────────────────────────────────────────────────────────
   const {
     queue,
     isProcessing: isQueueProcessing,
@@ -183,7 +183,7 @@ export function DashboardClient({
     downloadAllReady,
   } = useDownloadQueue()
 
-  // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
   const resetJobState = () => {
     setActiveJobId(null)
@@ -212,11 +212,11 @@ export function DashboardClient({
     try {
       sessionStorage.removeItem(DASHBOARD_STATE_KEY)
     } catch {
-      // sessionStorage unavailable â€” nothing to clear
+      // sessionStorage unavailable — nothing to clear
     }
   }
 
-  // â”€â”€ Effects â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Effects ───────────────────────────────────────────────────────────────
 
   // Restore persisted video + form state on mount (e.g. after a language switch).
   useEffect(() => {
@@ -236,7 +236,7 @@ export function DashboardClient({
         setTrimEnd(saved.trimEnd ?? 0)
       }
     } catch {
-      // Corrupt or unavailable storage â€” start fresh
+      // Corrupt or unavailable storage — start fresh
     }
   }, [])
 
@@ -259,7 +259,7 @@ export function DashboardClient({
         })
       )
     } catch {
-      // sessionStorage unavailable (e.g. private mode quota) â€” non-critical
+      // sessionStorage unavailable (e.g. private mode quota) — non-critical
     }
   }, [
     video,
@@ -273,7 +273,7 @@ export function DashboardClient({
     trimEnd,
   ])
 
-  // Sync SSE stage â†’ buttonState
+  // Sync SSE stage → buttonState
   useEffect(() => {
     if (!stage || !activeJobId) return
 
@@ -323,7 +323,7 @@ export function DashboardClient({
     setIncludeTrimTranscript(false)
   }, [output])
 
-  // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Handlers ──────────────────────────────────────────────────────────────
 
   const handleAnalyze = async (url: string) => {
     setIsAnalyzing(true)
@@ -433,7 +433,7 @@ export function DashboardClient({
     setLoopTrim(false)
   }
 
-  // â”€â”€ Player-connected trim controls â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Player-connected trim controls ──────────────────────────────────────
   // Both buttons keep at least a 1s gap. When the playhead sits too close to the
   // opposite boundary the *other* boundary is pushed instead of the press being
   // silently ignored, which is what the old clamp did (it produced -1 and the
@@ -497,7 +497,7 @@ export function DashboardClient({
     resetAllState()
   }
 
-  // â”€â”€ Transcript handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Transcript handler ────────────────────────────────────────────────────
   const handleFetchTranscript = async (lang?: string) => {
     if (!video) return
 
@@ -537,7 +537,7 @@ export function DashboardClient({
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
-  // â”€â”€ Trimmed transcript download â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Trimmed transcript download ───────────────────────────────────────────
   // Only the setter is consumed today; the flag is kept for a future spinner.
   const [_isLoadingTrimTranscript, setIsLoadingTrimTranscript] = useState(false)
 
@@ -598,7 +598,7 @@ export function DashboardClient({
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')},${ms.toString().padStart(3, '0')}`
   }
 
-  // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Render ────────────────────────────────────────────────────────────────
 
   const hasQueue = queue.length > 0
   const hasActivity = activityEntries.length > 0
@@ -629,7 +629,7 @@ export function DashboardClient({
       </AnimatePresence>
 
       {!video ? (
-        /* â”€â”€ Empty state: hero heading â†’ URL bar â”€â”€ */
+        /* ── Empty state: hero heading → URL bar ── */
         <div className="relative flex flex-col items-center pt-6 sm:pt-12">
           <EmptyState />
           <div className="relative w-full max-w-2xl">
@@ -646,7 +646,7 @@ export function DashboardClient({
           </div>
         </div>
       ) : (
-        /* â”€â”€ Video loaded: URL bar at top â†’ workspace grid â”€â”€ */
+        /* ── Video loaded: URL bar at top → workspace grid ── */
         <div className="space-y-6">
           <UrlInputBar
             onAnalyze={handleAnalyze}
@@ -659,7 +659,7 @@ export function DashboardClient({
           transition={{ duration: 0.3 }}
           className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12"
         >
-          {/* â”€â”€ Player column â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/* ── Player column ─────────────────────────────────── */}
           <div className="space-y-4 lg:col-span-7 xl:col-span-8">
             <VideoPreview
               videoId={video.videoId}
@@ -703,7 +703,7 @@ export function DashboardClient({
             )}
           </div>
 
-          {/* â”€â”€ Control rail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          {/* ── Control rail ──────────────────────────────────────
               Sticky on desktop: the tool controls used to scroll out of view as
               soon as the trim timeline or transcript grew the left column. */}
           <div className="space-y-4 lg:sticky lg:top-20 lg:col-span-5 xl:col-span-4">
@@ -800,7 +800,7 @@ export function DashboardClient({
         </div>
       )}
 
-      {/* â”€â”€ Secondary blocks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      {/* ── Secondary blocks ───────────────────────────────────────────────
           Rendered only when they hold something. Both used to mount
           unconditionally, so an untouched dashboard showed two empty cards
           stacked under the fold. */}

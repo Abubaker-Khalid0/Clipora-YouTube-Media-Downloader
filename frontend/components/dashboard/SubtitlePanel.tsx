@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
@@ -107,7 +107,7 @@ export function SubtitlePanel({
 
   const labelClass = 'block text-[11px] font-bold text-ink-4 uppercase tracking-[0.12em] mb-2'
 
-  // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Handlers ────────────────────────────────────────────────────────────
 
   const handleFetchYouTube = useCallback(async () => {
     const lines = await onFetchCaptions(captionLang)
@@ -154,7 +154,7 @@ export function SubtitlePanel({
     reader.readAsText(file)
   }, [config, onConfigChange])
 
-  // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Render ──────────────────────────────────────────────────────────────
 
   return (
     <div className="space-y-4">

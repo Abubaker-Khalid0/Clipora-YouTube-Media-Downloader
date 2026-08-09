@@ -1,9 +1,9 @@
-﻿'use client'
+'use client'
 
 import { Reveal } from '@/components/landing/Reveal'
 
 /**
- * SectionHeading â€” shared eyebrow + title + description block.
+ * SectionHeading — shared eyebrow + title + description block.
  *
  * Every landing section used to hand-roll its own heading markup with slightly
  * different sizes and weights. Centralising it keeps the vertical rhythm exact.

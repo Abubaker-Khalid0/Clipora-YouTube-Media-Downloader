@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useTranslations } from 'next-intl'
 import { MaterialIcon } from '@/components/ui/MaterialIcon'
@@ -78,7 +78,7 @@ function getModeVisuals(mode: string | null, format: string | null) {
     }
   }
 
-  // Fallback â€” generic video
+  // Fallback — generic video
   return {
     iconName: 'video_file',
     bgColor: 'bg-panel-sunken',
@@ -125,7 +125,7 @@ export function RecentActivity({ entries: initialEntries, userId: _userId, onRep
 
   const handleDelete = async (id: string) => {
     setDeletingId(id)
-    // No DB â€” just remove from local state
+    // No DB — just remove from local state
     setEntries((prev) => prev.filter((entry) => entry.id !== id))
     setDeletingId(null)
   }
@@ -233,7 +233,7 @@ export function RecentActivity({ entries: initialEntries, userId: _userId, onRep
 
               {/* Actions */}
               <div className="flex items-center gap-1 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity duration-200">
-                {/* Re-edit button â€” loads the video back into the editor */}
+                {/* Re-edit button — loads the video back into the editor */}
                 {entry.videoId && entry.videoId !== 'pending' && entry.videoId !== 'unknown' && onReprocess && (
                   <button
                     onClick={() => onReprocess(entry.videoId!)}

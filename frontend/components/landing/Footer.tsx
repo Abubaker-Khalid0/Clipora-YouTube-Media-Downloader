@@ -1,11 +1,11 @@
-﻿import Link from 'next/link'
+import Link from 'next/link'
 import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
 
 /**
- * Footer â€” sitemap-style footer.
+ * Footer — sitemap-style footer.
  *
- * The previous version hard-coded "Â© 2024" and English link labels while the
+ * The previous version hard-coded "© 2024" and English link labels while the
  * translation files already had a `{year}` placeholder. Year is now computed at
  * render time and every label comes from the message catalogue.
  */

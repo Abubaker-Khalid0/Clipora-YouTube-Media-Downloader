@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { MaterialIcon } from '@/components/ui/MaterialIcon'
@@ -147,7 +147,7 @@ export function QueuePanel({
                   <StageLabel item={item} />
                   {item.trimEnabled && item.trimStart != null && item.trimEnd != null && (
                     <span className="text-[10px] text-ink-4 bg-veil-2 px-1.5 py-0.5 rounded">
-                      âœ‚ {formatTime(item.trimStart)} â†’ {formatTime(item.trimEnd)}
+                      ✂ {formatTime(item.trimStart)} → {formatTime(item.trimEnd)}
                     </span>
                   )}
                 </div>
@@ -193,7 +193,7 @@ export function QueuePanel({
         <div className="text-xs text-ink-4">
           {isProcessing
             ? `Processing... (${completedCount}/${queue.length} done${failedCount > 0 ? `, ${failedCount} failed` : ''})`
-            : `${waitingCount} waiting Â· ${completedCount} done${failedCount > 0 ? ` Â· ${failedCount} failed` : ''}`}
+            : `${waitingCount} waiting · ${completedCount} done${failedCount > 0 ? ` · ${failedCount} failed` : ''}`}
         </div>
         {!isProcessing && waitingCount > 0 && (
           <button

@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import { useInView, useReducedMotion } from 'framer-motion'
@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl'
 import { Reveal } from '@/components/landing/Reveal'
 
 /**
- * StatsStrip â€” four verifiable capability numbers.
+ * StatsStrip — four verifiable capability numbers.
  *
  * Deliberately technical facts drawn from what the backend actually supports
  * (max resolution, output formats, free credits, temp-file retention) rather
@@ -24,7 +24,7 @@ const STATS: Stat[] = [
   { key: 'resolution', value: 2160, suffix: 'p' },
   { key: 'formats', value: 8, suffix: '+' },
   // Was a "10 free credits" claim. There is no auth or billing in the app, so
-  // every operation is genuinely free â€” advertising a credit balance was false.
+  // every operation is genuinely free — advertising a credit balance was false.
   { key: 'cost', value: 0, prefix: '$' },
   { key: 'retention', value: 30 },
 ]

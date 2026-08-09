@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
@@ -7,7 +7,7 @@ import { Reveal, staggerContainer, staggerItem } from '@/components/landing/Reve
 import { SectionHeading } from '@/components/landing/SectionHeading'
 
 /**
- * FeatureGrid â€” bento layout describing what the tool actually does.
+ * FeatureGrid — bento layout describing what the tool actually does.
  *
  * Every entry maps to a capability that exists in the app today (download,
  * trim, audio extraction, thumbnails, transcripts, burned subtitles), so the
@@ -17,7 +17,7 @@ import { SectionHeading } from '@/components/landing/SectionHeading'
 interface Feature {
   key: string
   icon: string
-  /** Grid span on large screens â€” drives the bento rhythm. */
+  /** Grid span on large screens — drives the bento rhythm. */
   span: string
   accent?: boolean
 }

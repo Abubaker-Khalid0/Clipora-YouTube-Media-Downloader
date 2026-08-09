@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -8,7 +8,7 @@ import { Reveal } from '@/components/landing/Reveal'
 import { SectionHeading } from '@/components/landing/SectionHeading'
 
 /**
- * FaqSection â€” accordion answering the questions that actually block a first
+ * FaqSection — accordion answering the questions that actually block a first
  * download (cost, quality, privacy, members-only videos, playlists, formats).
  *
  * Hand-built on native <button> semantics rather than pulling in another

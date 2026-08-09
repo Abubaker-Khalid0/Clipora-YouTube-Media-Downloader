@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
@@ -7,7 +7,7 @@ import { staggerContainer, staggerItem } from '@/components/landing/Reveal'
 import { SectionHeading } from '@/components/landing/SectionHeading'
 
 /**
- * HowItWorks â€” four-step flow on a connected rail.
+ * HowItWorks — four-step flow on a connected rail.
  *
  * Previously four hand-duplicated blocks of near-identical markup with
  * hard-coded English. Now data-driven and fully translated.
@@ -39,7 +39,7 @@ export function HowItWorks() {
         />
 
         <div className="relative mt-16">
-          {/* Connecting rail â€” desktop only */}
+          {/* Connecting rail — desktop only */}
           <div
             aria-hidden="true"
             className="absolute inset-x-0 top-7 hidden h-px bg-gradient-to-r from-transparent via-white/12 to-transparent lg:block"

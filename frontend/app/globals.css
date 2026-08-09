@@ -638,6 +638,29 @@
     color: var(--ink-4);
   }
 
+  /* Small caps label used above landing sections. */
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  /* Arabic is cursive: letter-spacing pulls the glyphs apart and breaks the
+     joins, and there is no upper case to switch to. Both are dropped in RTL. */
+  [dir='rtl'] .section-label,
+  [dir='rtl'] .eyebrow {
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 11px;
+  }
+
+  /* Let a reader stop the ticker to actually read it. */
+  .marquee-mask:hover .marquee-track,
+  .marquee-mask:focus-within .marquee-track {
+    animation-play-state: paused;
+  }
+
   /* Blurred brand-red light source. Purely decorative. */
   .aurora-blob {
     position: absolute;

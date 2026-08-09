@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
@@ -6,7 +6,7 @@ import { MaterialIcon } from '@/components/ui/MaterialIcon'
 import { Reveal } from '@/components/landing/Reveal'
 
 /**
- * FinalCta â€” closing conversion block with a brand-lit panel.
+ * FinalCta — closing conversion block with a brand-lit panel.
  */
 export function FinalCta({ locale }: { locale: string }) {
   const t = useTranslations('landing.finalCta')
