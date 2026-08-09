@@ -1,83 +1,194 @@
 {
-  "auth": {
-    "tabs": {
-      "login": "Log in",
-      "signup": "Sign up"
-    },
-    "login": {
-      "email": "Email",
-      "password": "Password",
-      "submit": "Log In",
-      "forgotPassword": "Forgot Password?",
-      "or": "or",
-      "google": "Continue with Google",
-      "errors": {
-        "invalid": "Invalid email or password.",
-        "unverified": "Please verify your email before logging in.",
-        "locked": "Account locked. Try again in {minutes} minutes."
-      }
-    },
-    "signup": {
-      "fullName": "Full Name",
-      "email": "Email",
-      "password": "Password",
-      "confirmPassword": "Confirm Password",
-      "submit": "Create Account",
-      "or": "or",
-      "google": "Continue with Google",
-      "errors": {
-        "emailTaken": "An account with this email already exists.",
-        "passwordMismatch": "Passwords do not match.",
-        "passwordTooShort": "Password must be at least 8 characters."
-      }
-    },
-    "verification": {
-      "sent": "Check your email for a verification link.",
-      "resend": "Resend verification email",
-      "expired": "Your verification link has expired.",
-      "status": "Email not yet verified."
-    },
-    "reset": {
-      "trigger": "Forgot your password?",
-      "email": "Enter your email address",
-      "submit": "Send Reset Link",
-      "sent": "If an account exists, a reset link has been sent.",
-      "rateLimited": "Please wait before requesting another link.",
-      "newPassword": "New Password",
-      "confirmPassword": "Confirm New Password",
-      "save": "Save New Password",
-      "success": "Password updated. Please log in."
-    }
-  },
   "landing": {
     "navbar": {
-      "login": "Log in",
-      "start": "Start free",
-      "features": "Features"
+      "ariaLabel": "Main navigation",
+      "toggleMenu": "Toggle navigation menu",
+      "start": "Open the app",
+      "features": "Features",
+      "howItWorks": "How it works",
+      "faq": "FAQ"
     },
     "hero": {
-      "badge": "TRY FOR FREE — NO CREDIT CARD REQUIRED",
-      "title": "More Than Just a",
-      "titleAccent": "Downloader.",
-      "subtitle": "Download, Trim, and Convert. Get started with our basic tools for free.",
-      "cta": "Start Your Free Trial"
+      "badge": "NO ACCOUNT · NO CARD · NO WATERMARK",
+      "titleLead": "More than just a",
+      "titleAccent": "downloader.",
+      "subtitle": "Pull any YouTube video in up to 4K, lift the audio, cut an exact segment, grab the thumbnail, or pull the full transcript. One paste, one click, done.",
+      "ctaPrimary": "Open the app",
+      "ctaSecondary": "See how it works",
+      "trust": {
+        "noSignup": "No sign-up required",
+        "noWatermark": "Never watermarked",
+        "openSource": "Files auto-deleted"
+      }
+    },
+    "showcase": {
+      "urlPlaceholder": "Paste a YouTube link…",
+      "analyze": "Analyze",
+      "analyzing": "Analyzing",
+      "qualityLabel": "Quality",
+      "previewHint": "Preview appears after analysis",
+      "videoTitle": "Never Gonna Give You Up (4K Remaster)",
+      "videoChannel": "Rick Astley",
+      "readyFile": "Save file",
+      "waiting": "Waiting",
+      "status": {
+        "typing": "Idle",
+        "analyzing": "Working",
+        "analyzed": "Ready",
+        "processing": "Working",
+        "done": "Complete"
+      },
+      "stage": {
+        "typing": "Waiting for a link",
+        "analyzing": "Reading formats",
+        "analyzed": "Ready to process",
+        "processing": "Downloading",
+        "ready": "Done"
+      }
+    },
+    "marquee": {
+      "heading": "EVERYTHING IT CAN PRODUCE"
+    },
+    "features": {
+      "eyebrow": "Capabilities",
+      "heading": "One link in.",
+      "headingAccent": "Six ways out.",
+      "subheading": "Every tool below is already running in the app. Nothing here is a roadmap promise.",
+      "items": {
+        "download": {
+          "title": "Download up to 4K",
+          "description": "Pick any resolution the video actually offers, from 144p to 2160p. Video and audio streams are fetched separately and merged with FFmpeg, so you get one clean file at full quality.",
+          "tag": "144p → 2160p"
+        },
+        "trim": {
+          "title": "Frame-accurate trimming",
+          "description": "Scrub the timeline, mark a start and end, and take only that segment. Set the cut against the live player instead of guessing timestamps.",
+          "tag": "HH:MM:SS"
+        },
+        "audio": {
+          "title": "Audio extraction",
+          "description": "Drop the video track entirely and keep the best available audio stream for podcasts, lectures, or music.",
+          "tag": "MP3 · M4A · OPUS"
+        },
+        "transcript": {
+          "title": "Full transcript",
+          "description": "Pull the video's captions as searchable text, then copy them or save them to a file. Works with both manual and auto-generated captions.",
+          "tag": "Searchable text"
+        },
+        "subtitles": {
+          "title": "Burned-in subtitles",
+          "description": "Render captions directly into the picture with your choice of style, font, size, and position — ready for feeds that mute autoplay.",
+          "tag": "6 styles"
+        },
+        "privacy": {
+          "title": "Nothing is kept",
+          "description": "There is no account and no library. Your file lives on the server only long enough for you to download it, then a cleanup job removes it permanently.",
+          "tag": "Auto-purge"
+        }
+      }
     },
     "howItWorks": {
-      "heading": "How It Works",
-      "step1Title": "Create Account",
-      "step1Desc": "Sign up for free and get 10 credits instantly.",
-      "step2Title": "Analyze Video",
-      "step2Desc": "Paste any YouTube link and we'll fetch all available formats.",
-      "step3Title": "Choose & Edit",
-      "step3Desc": "Select quality, format, and optionally trim your clip.",
-      "step4Title": "Download",
-      "step4Desc": "Get your file instantly — video, audio, or thumbnail."
+      "eyebrow": "The flow",
+      "heading": "From link to file in",
+      "headingAccent": "four steps.",
+      "subheading": "No setup, no configuration, no account to create first.",
+      "steps": {
+        "paste": {
+          "title": "Paste the link",
+          "description": "Any YouTube watch, Shorts, or youtu.be link works. Playlist parameters are stripped automatically."
+        },
+        "analyze": {
+          "title": "Read the formats",
+          "description": "Clipora reads the real stream list straight from the source and shows only the qualities that genuinely exist."
+        },
+        "configure": {
+          "title": "Choose the output",
+          "description": "Pick a resolution, switch to audio, mark a trim range, or select a transcript or thumbnail instead."
+        },
+        "download": {
+          "title": "Save the file",
+          "description": "Progress streams live while the server works. The moment it finishes, the file downloads straight to your device."
+        }
+      }
+    },
+    "stats": {
+      "resolution": {
+        "label": "Max resolution",
+        "hint": "Where the source offers it"
+      },
+      "formats": {
+        "label": "Output formats",
+        "hint": "Video, audio, image, text"
+      },
+      "cost": {
+        "label": "Total cost",
+        "hint": "No account, no card"
+      },
+      "retention": {
+        "label": "Minutes retained",
+        "hint": "Then deleted automatically"
+      }
+    },
+    "faq": {
+      "eyebrow": "Questions",
+      "heading": "Before you",
+      "headingAccent": "paste that link.",
+      "items": {
+        "cost": {
+          "question": "Is there a catch? Do I need an account?",
+          "answer": "No account, no payment, no trial timer. Paste a link and use it. There is nothing to sign up for."
+        },
+        "quality": {
+          "question": "Why is 4K missing on some videos?",
+          "answer": "Clipora only shows resolutions the video genuinely publishes. If the uploader never rendered above 1080p, no tool can invent a 4K version. The quality list you see is read live from the source."
+        },
+        "privacy": {
+          "question": "What happens to my files?",
+          "answer": "They are written to temporary server storage, served to you once, and then deleted by a scheduled cleanup job. There is no user library, no history, and no third-party analytics on your downloads."
+        },
+        "restricted": {
+          "question": "Why did a video fail?",
+          "answer": "Members-only, private, age-restricted, and region-blocked videos cannot be read without the matching account credentials, so they are refused with a clear reason rather than a silent failure."
+        },
+        "playlists": {
+          "question": "Can I download a whole playlist or channel?",
+          "answer": "Not currently. Clipora handles one video at a time by design. Paste a link that includes a playlist parameter and it will quietly target just that single video."
+        },
+        "audio": {
+          "question": "Can I get audio only, without the video?",
+          "answer": "Yes. Switch the mode to audio and Clipora fetches the best available audio stream directly, skipping the video track entirely so the download is far smaller and faster."
+        }
+      }
+    },
+    "finalCta": {
+      "eyebrow": "Ready when you are",
+      "title": "Stop fighting sketchy",
+      "titleAccent": "download sites.",
+      "description": "No pop-ups, no fake buttons, no watermark, no inbox harvesting. Paste a link and get your file.",
+      "cta": "Open the app",
+      "note": "Works instantly in your browser"
     },
     "footer": {
+      "tagline": "A clean, fast way to download, trim, and convert YouTube media — without the ad traps.",
+      "productHeading": "Product",
+      "legalHeading": "Legal",
+      "links": {
+        "dashboard": "Open the app",
+        "features": "Features",
+        "howItWorks": "How it works",
+        "faq": "FAQ",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "contact": "Contact"
+      },
       "copyright": "© {year} Clipora. All rights reserved.",
-      "privacy": "Privacy Policy",
-      "terms": "Terms of Service",
-      "contact": "Contact Us"
+      "disclaimer": "Clipora is not affiliated with YouTube or Google. Please respect copyright and only download content you have the right to use."
+    }
+  },
+  "common": {
+    "theme": {
+      "switchToLight": "Switch to light mode",
+      "switchToDark": "Switch to dark mode"
     }
   },
   "legal": {
@@ -90,6 +201,32 @@
     "cta": "Go Home"
   },
   "dashboard": {
+    "navHome": "Home",
+    "dismiss": "Dismiss",
+    "addToQueue": "Add to queue",
+    "emptyBadge": "NO ACCOUNT NEEDED",
+    "invalidUrl": "That is not a valid YouTube link",
+    "clearUrl": "Clear link",
+    "trimStartHandle": "Trim start",
+    "trimEndHandle": "Trim end",
+    "trimUnavailable": "This video reports no duration, so a segment cannot be selected. Live streams are not trimmable.",
+    "playerPlay": "Play",
+    "playerPause": "Pause",
+    "playerMute": "Mute",
+    "playerUnmute": "Unmute",
+    "playerVolume": "Volume",
+    "playerSeek": "Seek",
+    "playerSpeed": "Playback speed",
+    "playerFullscreen": "Fullscreen",
+    "playerExitFullscreen": "Exit fullscreen",
+    "playerUnavailable": "This video cannot be played here. The owner may have disabled embedding, or it is blocked in your region.",
+    "playerOpenOnYoutube": "Open on YouTube",
+    "outputQuestion": "What do you want from this video?",
+    "comingSoon": "Soon",
+    "keepAudioTrack": "Keep the audio track",
+    "keepAudioTrackOffHint": "The video will download silent, with no audio.",
+    "subtitleSoonTitle": "Burned-in subtitles coming soon",
+    "subtitleSoonBody": "Printing captions into the picture needs a server encoding step that is not built yet. Until then, use the Transcript output to get the captions as a file.",
     "placeholder": "https://www.youtube.com/watch?v=...",
     "analyze": "Analyze",
     "analyzing": "Analyzing...",
@@ -100,20 +237,16 @@
     "trimming": "Trimming...",
     "downloadReady": "Download Ready",
     "downloaded": "Downloaded ✓",
-    "creditsRemaining": "{count} credits remaining",
-    "noActivity": "No activity yet",
-    "noActivitySub": "Your downloads will appear here",
-    "welcome": "Welcome to Clipora, {name}! 🎬",
-    "welcomeSub": "You have {credits} free credits to get started.",
-    "welcomeHint": "Paste a YouTube link below to begin.",
+    "noActivity": "No recent activity",
+    "noActivitySub": "Your analyzed links and downloads will appear here",
+    "noActivityCta": "Analyze a link to start",
+    "emptyHeading": "Paste a YouTube link to get started",
+    "emptySub": "Download videos, extract audio, grab thumbnails, or trim clips — all from one place.",
     "emptyVideoHint": "Video preview will appear here after analysis",
     "emptySettingsHint": "ANALYZE A LINK TO UNLOCK SETTINGS",
     "trimSegment": "Trim Segment",
     "trimPrecision": "PRECISION CLIP SELECTION",
     "trimReset": "Reset",
-    "zeroCreditsTitle": "Out of Credits",
-    "zeroCreditsMessage": "Your credits have been used up. Thank you for trying Clipora!",
-    "zeroCreditsAction": "Got it",
     "recentActivity": "Recent Activity",
     "modeVideo": "Video",
     "modeAudio": "Audio",
@@ -124,13 +257,17 @@
     "estimatedTime": "Estimated Time {time}",
     "fileExpired": "File expired",
     "untitled": "Untitled",
-    "profile": "Profile",
     "startTime": "Start Time",
     "endTime": "End Time",
-    "enableTrim": "Enable Trim (+1 credit)",
+    "enableTrim": "Trim a segment",
     "trimValidation": "Start time must be less than end time",
+    "trimSetStart": "Set Start",
+    "trimSetEnd": "Set End",
+    "trimPreview": "Preview",
+    "trimSetStartHint": "Set the trim start to the current playback position",
+    "trimSetEndHint": "Set the trim end to the current playback position",
+    "trimPreviewHint": "Play the selected segment on loop",
     "processingFailed": "Processing failed",
-    "credits": "credits",
     "outputSettings": "Output Settings",
     "pasteUrl": "Paste a YouTube URL above",
     "videoTypeLabel": "Video Type",
@@ -139,7 +276,6 @@
     "thumbnailFormatLabel": "Thumbnail Format",
     "download": "Download",
     "delete": "Delete",
-    "creditsLoadError": "Unable to load credits. Cached value displayed.",
     "activityVideoAudio": "Video + Audio",
     "activityVideoOnly": "Video Only",
     "activityVideo": "Video",
@@ -147,41 +283,65 @@
     "activityThumbnail": "Thumbnail",
     "activityDownload": "Download",
     "trimOutputLabel": "Trim Output",
-    "trimOutputAudioOnly": "Audio Only"
-  },
-  "profile": {
-    "memberSince": "Member since {date}",
-    "creditsRemaining": "{n} credits remaining",
-    "changePassword": "Change Password",
-    "currentPassword": "Current Password",
-    "newPassword": "New Password",
-    "confirmPassword": "Confirm New Password",
-    "saveChanges": "Save Changes",
-    "saving": "Saving…",
-    "successMessage": "Password updated successfully.",
-    "errorMismatch": "Passwords do not match.",
-    "errorMinLength": "Password must be at least 8 characters.",
-    "errorWrongPassword": "Current password is incorrect.",
-    "errorGeneric": "Something went wrong. Please try again.",
-    "oauthNotice": "Your password is managed by your Google account.",
-    "lockoutNotice": "Too many failed attempts. Try again in 15 minutes.",
-    "logout": "Log Out",
-    "logoutTitle": "Are you sure you want to log out?",
-    "logoutDescription": "You will be signed out of your Clipora account.",
-    "logoutCancel": "Cancel",
-    "logoutConfirm": "Log Out",
-    "promoTitle": "Promo Code",
-    "promoSubtitle": "Enter a promo code to receive bonus credits",
-    "promoPlaceholder": "Enter promo code...",
-    "promoRedeem": "Redeem",
-    "promoRedeeming": "Redeeming...",
-    "promoSuccess": "Code redeemed successfully!",
-    "promoCreditsLabel": "credits",
-    "promoRedeemAnother": "Redeem another code",
-    "promoInvalidCode": "This code is invalid or does not exist.",
-    "promoAlreadyUsed": "You have already used this code.",
-    "promoExpired": "This code has expired.",
-    "promoMaxUses": "This code has reached its usage limit.",
-    "promoServerError": "Something went wrong. Please try again."
+    "trimOutputAudioOnly": "Audio Only",
+    "modeTranscript": "Transcript",
+    "transcriptLoading": "Fetching transcript...",
+    "transcriptEmpty": "No transcript available for this video",
+    "transcriptEmptySub": "This video doesn't have captions or subtitles",
+    "transcriptCopy": "Copy",
+    "transcriptCopied": "Copied!",
+    "transcriptDownload": "Download",
+    "transcriptLanguage": "Language",
+    "transcriptGenerated": "Auto-generated",
+    "transcriptManual": "Manual",
+    "transcriptError": "Failed to load transcript",
+    "transcriptRetry": "Retry",
+    "transcriptLines": "lines",
+    "transcriptReady": "Transcript ready to fetch",
+    "transcriptReadySub": "Click the button below to fetch the video transcript",
+    "transcriptFetchBtn": "Fetch transcript",
+    "transcriptSearchPlaceholder": "Search in transcript...",
+    "transcriptSearchResults": "{count} matching lines",
+    "transcriptSearchNoResults": "No matches found",
+    "reEdit": "Re-edit this video",
+    "featureMenuTitle": "Tools",
+    "featureDownload": "Download",
+    "featureDownloadDesc": "Download video in any quality",
+    "featureTrim": "Trim & Cut",
+    "featureTrimDesc": "Cut a specific segment",
+    "featureThumbnail": "Thumbnail",
+    "featureThumbnailDesc": "Grab the video thumbnail",
+    "featureTranscript": "Transcript",
+    "featureTranscriptDesc": "Get video captions as text",
+    "featureSubtitle": "Subtitle",
+    "featureSubtitleDesc": "Burn subtitles into video",
+    "subtitleSource": "Source",
+    "subtitleManual": "Manual",
+    "subtitleFetchYT": "Fetch YouTube Captions",
+    "subtitleFetching": "Fetching...",
+    "subtitleUploadSrt": "Upload SRT / VTT file",
+    "subtitleLines": "Subtitle Lines",
+    "subtitleLinesCount": "lines",
+    "subtitleAddLine": "Add Line",
+    "subtitleTextPlaceholder": "Enter subtitle text...",
+    "subtitleEmpty": "Empty line",
+    "subtitleStyleTitle": "Style & Font",
+    "subtitleStyleClassic": "Classic",
+    "subtitleStyleTiktok": "TikTok",
+    "subtitleStyleModernBox": "Box",
+    "subtitleStyleCinematic": "Cinema",
+    "subtitleStyleOutline": "Outline",
+    "subtitleStyleBoldCenter": "Bold",
+    "subtitleFont": "Font",
+    "subtitleSize": "Size",
+    "subtitleSizeSmall": "Small",
+    "subtitleSizeMedium": "Medium",
+    "subtitleSizeLarge": "Large",
+    "subtitlePosition": "Position",
+    "subtitlePosTop": "Top",
+    "subtitlePosCenter": "Center",
+    "subtitlePosBottom": "Bottom",
+    "includeTrimTranscript": "Include trimmed transcript (SRT)",
+    "trimTranscriptEmpty": "No transcript lines found in the selected trim range"
   }
 }

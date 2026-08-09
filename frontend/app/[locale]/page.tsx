@@ -1,26 +1,30 @@
 import type { Metadata } from 'next'
 import { Navbar } from '@/components/landing/Navbar'
 import { HeroSection } from '@/components/landing/HeroSection'
+import { FormatMarquee } from '@/components/landing/FormatMarquee'
+import { FeatureGrid } from '@/components/landing/FeatureGrid'
 import { HowItWorks } from '@/components/landing/HowItWorks'
+import { StatsStrip } from '@/components/landing/StatsStrip'
+import { FaqSection } from '@/components/landing/FaqSection'
+import { FinalCta } from '@/components/landing/FinalCta'
 import { Footer } from '@/components/landing/Footer'
 
-// import { PricingSection } from '@/components/landing/PricingSection'
+// PricingSection stays out until Stripe is wired — there is no billing yet.
 
-// ── SEO Metadata (T007, FR-012, SC-008) ──────────────────────────────────────
 export const metadata: Metadata = {
-  title: 'Clipora — YouTube Downloader, Trimmer & Converter',
+  title: 'Clipora — YouTube Downloader, Trimmer & Transcript Tool',
   description:
-    'Download, trim, and convert YouTube videos for free. No credit card required. Start with 10 free credits.',
+    'Download YouTube videos up to 4K, extract audio, trim exact segments, grab thumbnails, and pull full transcripts. No account, no watermark, files auto-deleted.',
   openGraph: {
-    title: 'Clipora — YouTube Downloader, Trimmer & Converter',
+    title: 'Clipora — YouTube Downloader, Trimmer & Transcript Tool',
     description:
-      'Download, trim, and convert YouTube videos for free.',
+      'Download up to 4K, extract audio, trim segments, and pull transcripts. No account required.',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Clipora — YouTube Downloader, Trimmer & Converter',
+        alt: 'Clipora — YouTube Downloader, Trimmer & Transcript Tool',
       },
     ],
   },
@@ -33,28 +37,27 @@ type Props = {
 /**
  * Landing page — /[locale]/
  *
- * Phase 3 (US1): Navbar + HeroSection wired. ✅
- * Phase 4 (US2): HowItWorks wired. ✅
- * Phase 6 (US4): <Footer /> will be added at the bottom.
+ * The section order walks a visitor from claim to proof to objection handling:
+ * hero (what it is) → marquee (breadth) → features (what it does) →
+ * how it works (how) → stats (hard numbers) → FAQ (objections) → final CTA.
  *
- * PricingSection is intentionally commented out — enable when Stripe is ready:
- * {/* PRICING — Uncomment when Stripe is ready *\/}
- * {/* <PricingSection /> *\/}
+ * `landing-root` owns the canvas and text colour through theme tokens, so the
+ * page follows the light/dark switch. It previously hard-coded
+ * `bg-background-light`, which put white text on a #f8f6f6 background.
  */
 export default async function LandingPage({ params }: Props) {
   const { locale } = await params
 
   return (
-    <main className="min-h-screen bg-background-light">
+    <main className="landing-root min-h-screen">
       <Navbar locale={locale} />
       <HeroSection locale={locale} />
-
+      <FormatMarquee />
+      <FeatureGrid />
       <HowItWorks />
-
-      {/* PRICING — Uncomment when Stripe is ready */}
-      {/* <PricingSection /> */}
-
-      {/* Phase 6 (US4): Footer ✅ */}
+      <StatsStrip />
+      <FaqSection />
+      <FinalCta locale={locale} />
       <Footer locale={locale} />
     </main>
   )

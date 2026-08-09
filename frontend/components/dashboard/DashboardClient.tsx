@@ -1,28 +1,34 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { UrlInputBar } from './UrlInputBar'
 import { EmptyState } from './EmptyState'
+import { ToolChips } from './ToolChips'
 import { VideoPreview } from './VideoPreview'
-import { WelcomeState } from './WelcomeState'
-import { OutputControls } from './OutputControls'
+import type { VideoPlayerHandle } from './VideoPlayer'
+
+import { OutputOptions } from './OutputOptions'
 import { ProcessingButton } from './ProcessingButton'
-import { ZeroCreditsModal } from './ZeroCreditsModal'
+
 import { TrimTimeline } from './TrimTimeline'
+import { TranscriptPanel } from './TranscriptPanel'
+import { RecentActivity } from './RecentActivity'
+import { QueuePanel } from './QueuePanel'
+import { OutputPicker, type OutputKind } from './OutputPicker'
+import { ComingSoonPanel } from './ComingSoonPanel'
+import type { ActivityEntry } from '@/app/[locale]/dashboard/page'
 import { useJobStream } from '@/hooks/useJobStream'
-import { useCredits } from '@/hooks/useCredits'
-import { calculateCreditCost } from '@/lib/utils'
+import { useDownloadQueue } from '@/hooks/useDownloadQueue'
+import type { JobMode } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
-import { AlertCircle, AlertTriangle } from 'lucide-react'
+import { MaterialIcon } from '@/components/ui/MaterialIcon'
 import { motion, AnimatePresence } from 'framer-motion'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type DownloadMode = 'video' | 'audio' | 'thumbnail'
 type ThumbnailFormat = 'jpg' | 'png'
-type VideoType = 'video_audio' | 'video_only' | 'audio_only'
 
 type ButtonState =
   | 'idle'
@@ -46,60 +52,138 @@ interface VideoMetadata {
 }
 
 interface DashboardClientProps {
-  isFirstLogin: boolean
-  firstName: string
-  credits: number
+  activityEntries: ActivityEntry[]
+  userId: string
 }
 
 const STATUS_MESSAGES: Record<number, string> = {
-  402: "You don't have enough credits for this download.",
   409: 'A download is already in progress. Please wait for it to finish.',
   429: 'Too many requests. Please wait a moment before trying again.',
   500: 'Server error. Please try again later.',
   503: 'Service temporarily unavailable. Please try again later.',
 }
 
+/**
+ * Translates the user's chosen output into the job request the backend accepts.
+ *
+ * Three backend constraints shape this (backend/models/schemas.py):
+ *   1. trim is only valid with mode='video'
+ *   2. video_type='audio_only' *requires* trim
+ *   3. thumbnail mode cannot be trimmed
+ *
+ * So trimmed audio is expressed as video+audio_only+trim, while untrimmed audio
+ * is plain mode='audio'. Keeping that translation in one function is what lets
+ * the UI ask a simple question without leaking the contract's quirks.
+ */
+function buildJobPayload({
+  output,
+  includeAudio,
+  trimEnabled,
+  quality,
+  thumbnailFormat,
+}: {
+  output: OutputKind
+  includeAudio: boolean
+  trimEnabled: boolean
+  quality: string | null
+  thumbnailFormat: ThumbnailFormat
+}): Record<string, unknown> {
+  if (output === 'image') {
+    return { mode: 'thumbnail' satisfies JobMode, quality: null, thumbnailFormat }
+  }
+
+  if (output === 'audio') {
+    return trimEnabled
+      ? { mode: 'video' satisfies JobMode, videoType: 'audio_only', quality: null }
+      : { mode: 'audio' satisfies JobMode, quality: null }
+  }
+
+  return {
+    mode: 'video' satisfies JobMode,
+    videoType: includeAudio ? 'video_audio' : 'video_only',
+    quality,
+  }
+}
+
+// Session key used to preserve the analyzed video + form state across
+// full-page navigations such as switching the UI language (which remounts
+// this component because the locale lives in the route segment).
+const DASHBOARD_STATE_KEY = 'clipora:dashboard-state'
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 export function DashboardClient({
-  isFirstLogin,
-  firstName,
-  credits: initialCredits,
+  activityEntries,
+  userId,
 }: DashboardClientProps) {
   const t = useTranslations('dashboard')
 
-  // ── Analysis ──────────────────────────────────────────────────────────────
+  // â”€â”€ Analysis â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [video, setVideo] = useState<VideoMetadata | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  // ── Credits ───────────────────────────────────────────────────────────────
-  const { credits, loading: creditsLoading, hasError: creditsError } = useCredits()
-  const displayCredits = creditsLoading ? initialCredits : credits
-
-  // ── Output config ─────────────────────────────────────────────────────────
-  const [mode, setMode] = useState<DownloadMode>('video')
-  const [videoType, setVideoType] = useState<VideoType>('video_audio')
+  // â”€â”€ Output â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // `output` is what the user asked for; the backend mode is derived from it and
+  // the trim flag in buildJobPayload(). Keeping them separate is what removed
+  // the old activeFeature/mode/videoType three-way overlap.
+  const [output, setOutput] = useState<OutputKind>('video')
+  const [includeAudio, setIncludeAudio] = useState(true)
   const [thumbnailFormat, setThumbnailFormat] = useState<ThumbnailFormat>('jpg')
   const [selectedQuality, setSelectedQuality] = useState<string | null>(null)
   const [selectedFormat, setSelectedFormat] = useState<string | null>(null)
 
-  // ── Trim ──────────────────────────────────────────────────────────────────
+  // â”€â”€ Trim â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [trimEnabled, setTrimEnabled] = useState(false)
   const [trimStart, setTrimStart] = useState(0)
   const [trimEnd, setTrimEnd] = useState(0)
+  const [includeTrimTranscript, setIncludeTrimTranscript] = useState(false)
 
-  // ── Job state ─────────────────────────────────────────────────────────────
+  // â”€â”€ Player â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const playerRef = useRef<VideoPlayerHandle | null>(null)
+  const [playerTime, setPlayerTime] = useState(0)
+  const [loopTrim, setLoopTrim] = useState(false)
+
+  // â”€â”€ Job state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [activeJobId, setActiveJobId] = useState<string | null>(null)
   const [buttonState, setButtonState] = useState<ButtonState>('idle')
   const [fileId, setFileId] = useState<string | null>(null)
-  const [showZeroCredits, setShowZeroCredits] = useState(false)
+
+
+  // â”€â”€ Transcript state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const [transcriptData, setTranscriptData] = useState<{
+    snippets: Array<{ text: string; start: number; duration: number }>
+    availableLanguages: Array<{ code: string; name: string; isGenerated: boolean }>
+    language: string
+    languageCode: string
+    isGenerated: boolean
+    videoId: string
+  } | null>(null)
+  const [isLoadingTranscript, setIsLoadingTranscript] = useState(false)
+  const [transcriptError, setTranscriptError] = useState<string | null>(null)
+  const [transcriptFetched, setTranscriptFetched] = useState(false)
 
   const { stage, percent, fileId: streamFileId, error: streamError } = useJobStream(activeJobId)
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
+  // Subtitle state lived here to drive SubtitlePanel and SubtitleOverlay. Both
+  // are parked until the backend gains a burn-in step, so the state, the caption
+  // fetch handler and the overlay wiring are gone rather than left dangling.
+
+  // â”€â”€ Download Queue â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const {
+    queue,
+    isProcessing: isQueueProcessing,
+    addToQueue,
+    removeFromQueue,
+    clearQueue,
+    startQueue,
+    downloadFile: downloadQueueFile,
+    downloadAllReady,
+  } = useDownloadQueue()
+
+  // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const resetJobState = () => {
     setActiveJobId(null)
@@ -109,21 +193,87 @@ export function DashboardClient({
 
   const resetAllState = () => {
     setVideo(null)
-    setMode('video')
-    setVideoType('video_audio')
+    setOutput('video')
+    setIncludeAudio(true)
     setThumbnailFormat('jpg')
     setSelectedQuality(null)
     setSelectedFormat(null)
     setTrimEnabled(false)
     setTrimStart(0)
     setTrimEnd(0)
+    setIncludeTrimTranscript(false)
+    setLoopTrim(false)
+    setPlayerTime(0)
     resetJobState()
     setError(null)
+    setTranscriptData(null)
+    setTranscriptError(null)
+    setTranscriptFetched(false)
+    try {
+      sessionStorage.removeItem(DASHBOARD_STATE_KEY)
+    } catch {
+      // sessionStorage unavailable â€” nothing to clear
+    }
   }
 
-  // ── Effects ───────────────────────────────────────────────────────────────
+  // â”€â”€ Effects â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  // Sync SSE stage → buttonState
+  // Restore persisted video + form state on mount (e.g. after a language switch).
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(DASHBOARD_STATE_KEY)
+      if (!raw) return
+      const saved = JSON.parse(raw)
+      if (saved && saved.video) {
+        setVideo(saved.video)
+        setOutput(saved.output ?? 'video')
+        setIncludeAudio(saved.includeAudio ?? true)
+        setThumbnailFormat(saved.thumbnailFormat ?? 'jpg')
+        setSelectedQuality(saved.selectedQuality ?? null)
+        setSelectedFormat(saved.selectedFormat ?? null)
+        setTrimEnabled(saved.trimEnabled ?? false)
+        setTrimStart(saved.trimStart ?? 0)
+        setTrimEnd(saved.trimEnd ?? 0)
+      }
+    } catch {
+      // Corrupt or unavailable storage â€” start fresh
+    }
+  }, [])
+
+  // Persist video + form state whenever it changes so it survives navigation.
+  useEffect(() => {
+    if (!video) return
+    try {
+      sessionStorage.setItem(
+        DASHBOARD_STATE_KEY,
+        JSON.stringify({
+          video,
+          output,
+          includeAudio,
+          thumbnailFormat,
+          selectedQuality,
+          selectedFormat,
+          trimEnabled,
+          trimStart,
+          trimEnd,
+        })
+      )
+    } catch {
+      // sessionStorage unavailable (e.g. private mode quota) â€” non-critical
+    }
+  }, [
+    video,
+    output,
+    includeAudio,
+    thumbnailFormat,
+    selectedQuality,
+    selectedFormat,
+    trimEnabled,
+    trimStart,
+    trimEnd,
+  ])
+
+  // Sync SSE stage â†’ buttonState
   useEffect(() => {
     if (!stage || !activeJobId) return
 
@@ -158,23 +308,22 @@ export function DashboardClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage, activeJobId])
 
-  // Reset trim when switching away from video mode
+  // Image, transcript and subtitle cannot be trimmed — the backend rejects trim
+  // outside video mode — so clear the flag when switching to them.
+  //
+  // Only the flag. An earlier version also zeroed trimStart/trimEnd, which left
+  // trimEnd at 0 with nothing to restore it: coming back to video gave an empty
+  // range, "set start" silently refused (it clamps against trimEnd - 1), and
+  // submitting hit "trim_end must be greater than 00:00:00". The range is now
+  // kept, so switching output and back preserves the user's selection.
   useEffect(() => {
-    if (mode !== 'video') {
-      setTrimEnabled(false)
-      setTrimStart(0)
-      setTrimEnd(0)
-    }
-  }, [mode])
+    if (output === 'video' || output === 'audio') return
+    setTrimEnabled(false)
+    setLoopTrim(false)
+    setIncludeTrimTranscript(false)
+  }, [output])
 
-  // Reset audio_only when trim is disabled (audio_only requires trim)
-  useEffect(() => {
-    if (!trimEnabled && videoType === 'audio_only') {
-      setVideoType('video_audio')
-    }
-  }, [trimEnabled, videoType])
-
-  // ── Handlers ──────────────────────────────────────────────────────────────
+  // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const handleAnalyze = async (url: string) => {
     setIsAnalyzing(true)
@@ -224,31 +373,21 @@ export function DashboardClient({
   const handleStartProcessing = async () => {
     if (!video) return
 
-    const cost = calculateCreditCost(mode, selectedQuality, trimEnabled)
-
-    if (credits < cost) {
-      setShowZeroCredits(true)
-      return
-    }
-
     try {
       const body: Record<string, unknown> = {
+        ...buildJobPayload({
+          output,
+          includeAudio,
+          trimEnabled,
+          quality: selectedQuality,
+          thumbnailFormat,
+        }),
         url: `https://www.youtube.com/watch?v=${video.videoId}`,
-        mode,
-        quality: selectedQuality,
         trimEnabled,
         trimStart: trimEnabled ? trimStart : null,
         trimEnd: trimEnabled ? trimEnd : null,
         videoTitle: video.title,
         thumbnailUrl: video.thumbnailUrl,
-      }
-
-      // Only send mode-specific fields to keep the payload clean
-      if (mode === 'video') {
-        body.videoType = videoType
-      }
-      if (mode === 'thumbnail') {
-        body.thumbnailFormat = thumbnailFormat
       }
 
       const response = await fetch('/api/jobs/create', {
@@ -277,7 +416,11 @@ export function DashboardClient({
 
   const handleDownload = () => {
     if (!fileId) return
-    window.location.href = `/api/files/download/${fileId}`
+    window.location.assign(`/api/files/download/${fileId}`)
+    // Auto-download trimmed transcript if checkbox was enabled
+    if (includeTrimTranscript && trimEnabled) {
+      handleDownloadTrimmedTranscript()
+    }
     setButtonState('downloaded')
     setTimeout(resetAllState, 3000)
   }
@@ -287,11 +430,105 @@ export function DashboardClient({
       setTrimStart(0)
       setTrimEnd(video.durationSeconds)
     }
+    setLoopTrim(false)
+  }
+
+  // â”€â”€ Player-connected trim controls â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Both buttons keep at least a 1s gap. When the playhead sits too close to the
+  // opposite boundary the *other* boundary is pushed instead of the press being
+  // silently ignored, which is what the old clamp did (it produced -1 and the
+  // `if (clamped >= 0)` guard swallowed the click with no feedback).
+  const handleSetStartToCurrent = () => {
+    const duration = video?.durationSeconds ?? 0
+    const current = Math.floor(playerRef.current?.getCurrentTime() ?? playerTime)
+    const start = Math.max(0, Math.min(current, Math.max(0, duration - 1)))
+    setTrimStart(start)
+    if (trimEnd <= start) setTrimEnd(Math.min(start + 1, duration))
+  }
+
+  const handleSetEndToCurrent = () => {
+    const duration = video?.durationSeconds ?? 0
+    const current = Math.ceil(playerRef.current?.getCurrentTime() ?? playerTime)
+    const end = Math.min(Math.max(current, 1), duration)
+    setTrimEnd(end)
+    if (trimStart >= end) setTrimStart(Math.max(0, end - 1))
+  }
+
+  const handlePreviewTrim = () => {
+    setLoopTrim(true)
+    playerRef.current?.seekTo(trimStart)
+    playerRef.current?.play()
+  }
+
+  const handleTimelineSeek = (seconds: number) => {
+    playerRef.current?.seekTo(seconds)
   }
 
   const handleButtonClick = () => {
     if (buttonState === 'idle') handleStartProcessing()
     if (buttonState === 'ready') handleDownload()
+  }
+
+  const handleAddToQueue = () => {
+    if (!video) return
+    const derived = buildJobPayload({
+      output,
+      includeAudio,
+      trimEnabled,
+      quality: selectedQuality,
+      thumbnailFormat,
+    })
+    addToQueue({
+      url: `https://www.youtube.com/watch?v=${video.videoId}`,
+      videoId: video.videoId,
+      videoTitle: video.title,
+      thumbnailUrl: video.thumbnailUrl,
+      // Queued items go through the same derivation as a direct run, so a queued
+      // trimmed-audio job cannot drift from an immediate one.
+      mode: derived.mode as 'video' | 'audio' | 'thumbnail',
+      videoType: (derived.videoType as 'video_audio' | 'video_only' | 'audio_only') ?? 'video_audio',
+      quality: selectedQuality,
+      trimEnabled,
+      trimStart: trimEnabled ? trimStart : null,
+      trimEnd: trimEnabled ? trimEnd : null,
+      thumbnailFormat,
+    })
+    // Reset state so user can add another video
+    resetAllState()
+  }
+
+  // â”€â”€ Transcript handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const handleFetchTranscript = async (lang?: string) => {
+    if (!video) return
+
+    setIsLoadingTranscript(true)
+    setTranscriptError(null)
+
+    try {
+      const response = await fetch('/api/transcript', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          videoId: video.videoId,
+          lang: lang ?? 'en',
+        }),
+      })
+
+      const result = await response.json()
+
+      if (result.success && result.data) {
+        setTranscriptData(result.data)
+        if (!transcriptFetched) {
+          setTranscriptFetched(true)
+        }
+      } else {
+        setTranscriptError(result.error ?? 'Failed to fetch transcript')
+      }
+    } catch (err) {
+      setTranscriptError(err instanceof Error ? err.message : 'Network error')
+    } finally {
+      setIsLoadingTranscript(false)
+    }
   }
 
   const formatDuration = (seconds: number): string => {
@@ -300,37 +537,74 @@ export function DashboardClient({
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  // â”€â”€ Trimmed transcript download â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Only the setter is consumed today; the flag is kept for a future spinner.
+  const [_isLoadingTrimTranscript, setIsLoadingTrimTranscript] = useState(false)
 
-  const showWelcome = isFirstLogin && !video
+  const handleDownloadTrimmedTranscript = async () => {
+    if (!video) return
+    setIsLoadingTrimTranscript(true)
+    try {
+      const response = await fetch('/api/transcript', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          videoId: video.videoId,
+          lang: 'en',
+        }),
+      })
+      const result = await response.json()
+      if (result.success && result.data?.snippets) {
+        // Filter snippets to only those within trim range
+        const filtered = result.data.snippets.filter(
+          (s: { start: number; duration: number }) =>
+            s.start >= trimStart && s.start + s.duration <= trimEnd + 1
+        )
+        if (filtered.length === 0) {
+          setError(t('trimTranscriptEmpty'))
+          return
+        }
+        // Generate SRT content with adjusted timestamps
+        const srt = filtered
+          .map((s: { text: string; start: number; duration: number }, i: number) => {
+            const adjStart = s.start - trimStart
+            const adjEnd = adjStart + s.duration
+            return `${i + 1}\n${formatSrtTime(adjStart)} --> ${formatSrtTime(adjEnd)}\n${s.text}`
+          })
+          .join('\n\n')
+        // Download the file
+        const blob = new Blob([srt], { type: 'text/srt' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${video.title}_trim_${formatDuration(trimStart)}-${formatDuration(trimEnd)}.srt`
+        a.click()
+        URL.revokeObjectURL(url)
+      } else {
+        setError(t('transcriptError'))
+      }
+    } catch {
+      setError(t('transcriptError'))
+    } finally {
+      setIsLoadingTrimTranscript(false)
+    }
+  }
+
+  function formatSrtTime(seconds: number): string {
+    const h = Math.floor(seconds / 3600)
+    const m = Math.floor((seconds % 3600) / 60)
+    const s = Math.floor(seconds % 60)
+    const ms = Math.floor((seconds % 1) * 1000)
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')},${ms.toString().padStart(3, '0')}`
+  }
+
+  // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+  const hasQueue = queue.length > 0
+  const hasActivity = activityEntries.length > 0
 
   return (
-    <div className="space-y-6">
-
-      {showWelcome && (
-        <WelcomeState firstName={firstName} credits={displayCredits} />
-      )}
-
-      {/* Credits error banner */}
-      <AnimatePresence>
-        {creditsError && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="flex items-center gap-3 bg-amber-50 border border-amber-100 rounded-xl p-3.5 ring-1 ring-amber-100/50"
-          >
-            <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
-            <span className="text-amber-700 text-sm font-medium">{t('creditsLoadError')}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <UrlInputBar
-        onAnalyze={handleAnalyze}
-        isAnalyzing={isAnalyzing}
-        disabled={!!activeJobId}
-      />
+    <div className="space-y-8">
 
       {/* Error banner */}
       <AnimatePresence>
@@ -339,31 +613,54 @@ export function DashboardClient({
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="flex items-center gap-3 bg-red-50 border border-red-100 rounded-xl p-4 ring-1 ring-red-100/50"
+            className="flex items-center gap-3 rounded-xl border border-hairline bg-tint-err p-4"
           >
-            <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-            <span className="text-red-600 text-sm font-medium">{error}</span>
+            <MaterialIcon name="error" size={16} className="flex-shrink-0 text-tint-err" />
+            <span className="flex-1 text-sm font-medium text-tint-err">{error}</span>
             <button
               onClick={() => setError(null)}
-              className="ml-auto text-red-300 hover:text-red-400 text-xs font-medium transition-colors"
+              aria-label={t('dismiss')}
+              className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-ink-4 transition-colors hover:bg-veil-2 hover:text-ink"
             >
-              ✕
+              <MaterialIcon name="close" size={14} />
             </button>
           </motion.div>
         )}
       </AnimatePresence>
 
       {!video ? (
-        <EmptyState />
+        /* â”€â”€ Empty state: hero heading â†’ URL bar â”€â”€ */
+        <div className="relative flex flex-col items-center pt-6 sm:pt-12">
+          <EmptyState />
+          <div className="relative w-full max-w-2xl">
+            <UrlInputBar
+              onAnalyze={handleAnalyze}
+              isAnalyzing={isAnalyzing}
+              disabled={!!activeJobId}
+            />
+            {/* Capabilities sit under the input so they never separate the
+                headline from the field. */}
+            <div className="mt-5">
+              <ToolChips />
+            </div>
+          </div>
+        </div>
       ) : (
+        /* â”€â”€ Video loaded: URL bar at top â†’ workspace grid â”€â”€ */
+        <div className="space-y-6">
+          <UrlInputBar
+            onAnalyze={handleAnalyze}
+            isAnalyzing={isAnalyzing}
+            disabled={!!activeJobId}
+          />
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12"
         >
-          {/* ── Left column: Video Preview + Trim Timeline ──── */}
-          <div className="lg:col-span-2 space-y-4">
+          {/* â”€â”€ Player column â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          <div className="space-y-4 lg:col-span-7 xl:col-span-8">
             <VideoPreview
               videoId={video.videoId}
               thumbnailUrl={video.thumbnailUrl}
@@ -372,13 +669,16 @@ export function DashboardClient({
               duration={formatDuration(video.durationSeconds)}
               durationSeconds={video.durationSeconds}
               isLoading={isAnalyzing}
-              trimEnabled={mode === 'video' && trimEnabled}
+              trimEnabled={trimEnabled}
               trimStart={trimStart}
               trimEnd={trimEnd}
+              loopTrim={loopTrim}
+              playerRef={playerRef}
+              onTimeUpdate={setPlayerTime}
             />
 
-            {/* Trim Timeline — appears below video when enabled */}
-            {mode === 'video' && trimEnabled && (
+            {/* Timeline appears only once a range is actually being picked. */}
+            {trimEnabled && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
@@ -393,45 +693,144 @@ export function DashboardClient({
                   onTrimEndChange={setTrimEnd}
                   onReset={handleTrimReset}
                   disabled={!!activeJobId}
+                  currentTime={playerTime}
+                  onSeek={handleTimelineSeek}
+                  onSetStartToCurrent={handleSetStartToCurrent}
+                  onSetEndToCurrent={handleSetEndToCurrent}
+                  onPreview={handlePreviewTrim}
                 />
               </motion.div>
             )}
           </div>
 
-          {/* ── Right column: Controls + Trim Toggle + Button ── */}
-          <div className="lg:col-span-1 space-y-4">
-            <OutputControls
-              mode={mode}
-              onModeChange={setMode}
-              videoType={videoType}
-              onVideoTypeChange={setVideoType}
-              thumbnailFormat={thumbnailFormat}
-              onThumbnailFormatChange={setThumbnailFormat}
-              selectedQuality={selectedQuality}
-              onQualityChange={setSelectedQuality}
-              selectedFormat={selectedFormat}
-              onFormatChange={setSelectedFormat}
-              availableQualities={video.availableQualities}
-              availableAudioFormats={video.availableAudioFormats}
-              estimatedSizeBytes={video.estimatedSizeBytes}
-              estimatedTimeSeconds={video.estimatedTimeSeconds}
-              trimEnabled={trimEnabled}
-              onTrimEnabledChange={setTrimEnabled}
+          {/* â”€â”€ Control rail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+              Sticky on desktop: the tool controls used to scroll out of view as
+              soon as the trim timeline or transcript grew the left column. */}
+          <div className="space-y-4 lg:sticky lg:top-20 lg:col-span-5 xl:col-span-4">
+            <OutputPicker
+              value={output}
+              onChange={setOutput}
               disabled={!!activeJobId}
             />
 
-            <ProcessingButton
-              stage={buttonState}
-              percent={percent}
-              onClick={handleButtonClick}
-              disabled={buttonState !== 'idle' && buttonState !== 'ready'}
-            />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={output}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="space-y-4"
+              >
+                {output === 'subtitle' && <ComingSoonPanel />}
+
+                {output === 'transcript' && (
+                  <>
+                    <TranscriptPanel
+                      videoId={video.videoId}
+                      transcriptData={transcriptData}
+                      isLoading={isLoadingTranscript}
+                      error={transcriptError}
+                      onFetch={handleFetchTranscript}
+                      onRetry={() => handleFetchTranscript(transcriptData?.languageCode)}
+                      disabled={!!activeJobId}
+                    />
+                    {!transcriptData && !isLoadingTranscript && !transcriptError && (
+                      <button
+                        onClick={() => handleFetchTranscript()}
+                        disabled={!!activeJobId}
+                        className="w-full rounded-xl bg-[#ea2a33] py-3.5 text-sm font-bold text-white transition-colors duration-200
+                                   hover:bg-[#c91e26] active:scale-[0.99]
+                                   focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea2a33]
+                                   disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        {t('transcriptFetchBtn')}
+                      </button>
+                    )}
+                  </>
+                )}
+
+                {(output === 'video' || output === 'audio' || output === 'image') && (
+                  <>
+                    <OutputOptions
+                      output={output}
+                      includeAudio={includeAudio}
+                      onIncludeAudioChange={setIncludeAudio}
+                      quality={selectedQuality}
+                      onQualityChange={setSelectedQuality}
+                      audioFormat={selectedFormat}
+                      onAudioFormatChange={setSelectedFormat}
+                      imageFormat={thumbnailFormat}
+                      onImageFormatChange={setThumbnailFormat}
+                      availableQualities={video.availableQualities}
+                      availableAudioFormats={video.availableAudioFormats}
+                      trimEnabled={trimEnabled}
+                      onTrimEnabledChange={setTrimEnabled}
+                      includeTranscript={includeTrimTranscript}
+                      onIncludeTranscriptChange={setIncludeTrimTranscript}
+                      estimatedSizeBytes={video.estimatedSizeBytes}
+                      disabled={!!activeJobId}
+                    />
+
+                    <ProcessingButton
+                      stage={buttonState}
+                      percent={percent}
+                      onClick={handleButtonClick}
+                      disabled={buttonState !== 'idle' && buttonState !== 'ready'}
+                    />
+
+                    {buttonState === 'idle' && (
+                      <button
+                        onClick={handleAddToQueue}
+                        disabled={isQueueProcessing}
+                        className="flex w-full items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-hairline py-3 text-sm font-semibold text-ink-3 transition-all duration-200
+                                   hover:border-brand-tint hover:bg-brand-tint hover:text-brand
+                                   active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <MaterialIcon name="add" size={16} />
+                        {t('addToQueue')}
+                      </button>
+                    )}
+                  </>
+                )}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </motion.div>
+        </div>
       )}
 
-      {showZeroCredits && (
-        <ZeroCreditsModal onClose={() => setShowZeroCredits(false)} />
+      {/* â”€â”€ Secondary blocks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          Rendered only when they hold something. Both used to mount
+          unconditionally, so an untouched dashboard showed two empty cards
+          stacked under the fold. */}
+      {(hasQueue || hasActivity) && (
+        <div className="space-y-8 border-t border-hairline pt-8">
+          {hasQueue && (
+            <QueuePanel
+              queue={queue}
+              isProcessing={isQueueProcessing}
+              onStart={startQueue}
+              onRemove={removeFromQueue}
+              onClear={clearQueue}
+              onDownload={downloadQueueFile}
+              onDownloadAll={downloadAllReady}
+            />
+          )}
+
+          {hasActivity && (
+            <RecentActivity
+              entries={activityEntries}
+              userId={userId}
+              onReprocess={(videoId) => {
+                const url = `https://www.youtube.com/watch?v=${videoId}`
+                resetAllState()
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+                handleAnalyze(url)
+              }}
+            />
+          )}
+        </div>
       )}
 
     </div>

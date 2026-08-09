@@ -106,6 +106,14 @@ _ERROR_MAP: list[tuple[tuple[str, ...], str]] = [
         "FFmpeg is not installed. Please install it from https://ffmpeg.org/download.html",
     ),
     (
+        ("members-only",),
+        "This video is members-only. It requires a paid channel membership and cannot be downloaded.",
+    ),
+    (
+        ("requested format is not available",),
+        "No matching stream was found for this video. Try a different quality.",
+    ),
+    (
         ("merge",),
         "Failed to merge video and audio. Make sure FFmpeg is installed.",
     ),
@@ -140,23 +148,25 @@ _ERROR_MAP: list[tuple[tuple[str, ...], str]] = [
 ]
 
 
+# Strips yt-dlp's internal prefix, e.g. "ERROR: [youtube] dQw4w9WgXcQ: real message"
+_YTDLP_NOISE_RE = re.compile(r"^\s*ERROR:\s*(?:\[[^\]]+\]\s*)?(?:[\w-]{6,}:\s*)?", re.IGNORECASE)
+
+
 def format_error_message(error: Exception) -> str:
     """
     Map known yt-dlp / FFmpeg error strings to user-friendly messages.
-    Returns the original message if no known pattern matches.
+    Falls back to the original message with yt-dlp's internal prefix stripped,
+    so video IDs and extractor names are never shown to the user.
     """
-    lowered = str(error).lower()
+    raw = str(error)
+    lowered = raw.lower()
 
     for keywords, message in _ERROR_MAP:
         if all(kw in lowered for kw in keywords):
             return message
 
-    # Age-restriction is a two-keyword match — handled above.
-    # Single-keyword fallback for the common case where only one appears.
-    if "age" in lowered and "restrict" not in lowered:
-        pass  # not age-restriction, fall through
-
-    return str(error)
+    cleaned = _YTDLP_NOISE_RE.sub("", raw).strip()
+    return cleaned or raw
 
 
 # ---------------------------------------------------------------------------

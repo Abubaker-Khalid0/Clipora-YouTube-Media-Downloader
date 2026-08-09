@@ -74,6 +74,26 @@ def _base_ydl_opts() -> dict:
     }
 
 
+_TRANSPORT_ERROR_MARKERS: tuple[str, ...] = (
+    "getaddrinfo",
+    "timed out",
+    "timeout",
+    "connection reset",
+    "connection refused",
+    "connection aborted",
+    "temporary failure in name resolution",
+    "unable to download webpage",
+    "network is unreachable",
+    "ssl",
+)
+
+
+def _is_transport_error(message: str) -> bool:
+    """True when a yt-dlp DownloadError reflects a network failure, not a content restriction."""
+    lowered = message.lower()
+    return any(marker in lowered for marker in _TRANSPORT_ERROR_MARKERS)
+
+
 def _extract_best_thumbnail(thumbnails: list[dict]) -> str:
     if not thumbnails:
         return ""
@@ -106,7 +126,19 @@ def analyze_video(url: str) -> AnalyzeData:
     if not url or not isinstance(url, str):
         raise ValueError("URL must be a non-empty string")
 
-    opts = {**_base_ydl_opts(), "skip_download": True}
+    opts = {
+        **_base_ydl_opts(),
+        "skip_download": True,
+        # Do NOT request any specific format during analysis — we only need metadata.
+        "format": None,
+        # "format": None still runs yt-dlp's default format selector, which raises
+        # "Requested format is not available" for videos whose streams it cannot
+        # match (DRM, storyboard-only, SABR-served). Metadata is unaffected, so we
+        # suppress that failure here and validate the format list ourselves below.
+        "ignore_no_formats_error": True,
+        # Ensure no post-processing or format selection triggers a download attempt.
+        "extract_flat": False,
+    }
     _apply_cookies(opts)
 
     try:
@@ -126,6 +158,14 @@ def analyze_video(url: str) -> AnalyzeData:
             logger.warning("Video %s has no duration (possibly a live stream)", video_id)
 
         formats = [f for f in info.get("formats", []) if isinstance(f, dict)]
+
+        # ignore_no_formats_error lets extraction succeed with an empty format list,
+        # so surface that as a clear error instead of returning an unusable video.
+        if not formats:
+            raise ValueError(
+                "No downloadable streams were found for this video. "
+                "It may be DRM-protected, members-only, or region-blocked."
+            )
 
         available_qualities: list[int] = sorted(
             {
@@ -174,8 +214,15 @@ def analyze_video(url: str) -> AnalyzeData:
         logger.error("Extraction failed for %s: %s", url, exc)
         raise ValueError(f"Could not extract video information: {exc}") from exc
     except DownloadError as exc:
-        logger.error("Network error for %s: %s", url, exc)
-        raise ConnectionError(f"Network error: {exc}") from exc
+        # DownloadError covers both transport failures and content restrictions
+        # (members-only, private, geo-blocked). Labelling everything "Network error"
+        # misleads the user, so classify before re-raising.
+        message = str(exc)
+        if _is_transport_error(message):
+            logger.error("Network error for %s: %s", url, message)
+            raise ConnectionError(message) from exc
+        logger.error("Video not retrievable %s: %s", url, message)
+        raise ValueError(message) from exc
     except Exception as exc:
         logger.error("Unexpected error analyzing %s: %s", url, exc, exc_info=True)
         raise RuntimeError(f"Unexpected error during video analysis: {exc}") from exc
@@ -401,8 +448,12 @@ def _do_download(job_id: str) -> None:
                 job.progress = 90
                 job.stage    = JobStage.TRIMMING.value
 
-            ext          = os.path.splitext(actual_file)[1]
-            trimmed_path = str(TEMP_DIR / f"{job_id}_trimmed{ext}")
+            # The trimmed file is re-encoded to H.264/AAC for an accurate cut, so
+            # its container must be MP4-family. Reusing the source extension put
+            # H.264 inside a WebM, which is not a valid combination.
+            keep_video   = job.video_type != "audio_only"
+            trimmed_ext  = ".mp4" if keep_video else ".m4a"
+            trimmed_path = str(TEMP_DIR / f"{job_id}_trimmed{trimmed_ext}")
 
             success, err = trim_media(
                 actual_file,
@@ -410,7 +461,7 @@ def _do_download(job_id: str) -> None:
                 job.trim_end,
                 trimmed_path,
                 keep_audio=(job.video_type != "video_only"),
-                keep_video=(job.video_type != "audio_only"),
+                keep_video=keep_video,
             )
             if not success:
                 raise RuntimeError(f"Trim failed: {err}")

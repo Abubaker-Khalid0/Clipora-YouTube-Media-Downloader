@@ -3,7 +3,7 @@
 import { useLocale } from 'next-intl'
 import { useRouter, usePathname } from 'next/navigation'
 import { useTransition } from 'react'
-import { Globe } from 'lucide-react'
+import { MaterialIcon } from '@/components/ui/MaterialIcon'
 
 /**
  * LanguageSwitcher — switches between /en/ and /ar/ while preserving
@@ -40,16 +40,15 @@ export function LanguageSwitcher() {
       aria-label={`Switch to ${fullLabel}`}
       title={`Switch to ${fullLabel}`}
       className={`
-        inline-flex items-center gap-1.5 rounded-xl px-3 py-2
-        text-xs font-bold tracking-wide transition-all duration-200
-        text-slate-500 hover:text-slate-800
-        bg-slate-50 hover:bg-slate-100
-        border border-slate-200/80 hover:border-slate-300
-        disabled:opacity-40 disabled:cursor-not-allowed
+        inline-flex h-9 items-center gap-1.5 rounded-full px-2.5
+        text-xs font-bold tracking-wide transition-colors duration-200
+        text-ink-3 hover:bg-veil-2 hover:text-ink
+        disabled:cursor-not-allowed disabled:opacity-40
+        focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea2a33]
         ${isPending ? 'animate-pulse' : ''}
       `}
     >
-      <Globe className={`w-3.5 h-3.5 transition-transform duration-300 ${isPending ? 'animate-spin' : ''}`} />
+      <MaterialIcon name="language" size={14} className={`transition-transform duration-300 ${isPending ? 'animate-spin' : ''}`} />
       <span>{label}</span>
     </button>
   )

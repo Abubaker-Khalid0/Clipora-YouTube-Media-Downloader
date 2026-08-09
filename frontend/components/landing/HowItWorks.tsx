@@ -1,81 +1,82 @@
+﻿'use client'
+
+import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
+import { MaterialIcon } from '@/components/ui/MaterialIcon'
+import { staggerContainer, staggerItem } from '@/components/landing/Reveal'
+import { SectionHeading } from '@/components/landing/SectionHeading'
+
+/**
+ * HowItWorks â€” four-step flow on a connected rail.
+ *
+ * Previously four hand-duplicated blocks of near-identical markup with
+ * hard-coded English. Now data-driven and fully translated.
+ */
+
+const STEPS = [
+  { key: 'paste', icon: 'content_paste' },
+  { key: 'analyze', icon: 'search_insights' },
+  { key: 'configure', icon: 'tune' },
+  { key: 'download', icon: 'download' },
+] as const
 
 export function HowItWorks() {
+  const t = useTranslations('landing.howItWorks')
 
-    return (
-        <section className="relative py-24 w-full overflow-hidden">
-            <div className="absolute inset-0 z-0">
-                <div className="hero-pattern h-full w-full"></div>
-            </div>
-            <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="mb-16 text-center">
-                    <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white sm:text-4xl lg:text-5xl">How
-                        it works</h2>
-                    <p className="mt-4 text-lg font-medium text-gray-600 dark:text-gray-400">Transform your video workflow in
-                        four simple steps.</p>
+  return (
+    <section id="how-it-works" className="relative scroll-mt-24 py-24 sm:py-32">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="grid-lines absolute inset-0 opacity-60" />
+        <div className="aurora-blob aurora-blob--ember start-[-10%] top-[25%] h-[380px] w-[380px] opacity-40" />
+      </div>
+
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <SectionHeading
+          eyebrow={t('eyebrow')}
+          title={t('heading')}
+          titleAccent={t('headingAccent')}
+          description={t('subheading')}
+        />
+
+        <div className="relative mt-16">
+          {/* Connecting rail â€” desktop only */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 top-7 hidden h-px bg-gradient-to-r from-transparent via-white/12 to-transparent lg:block"
+          />
+
+          <motion.ol
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6"
+          >
+            {STEPS.map((step, index) => (
+              <motion.li
+                key={step.key}
+                variants={staggerItem}
+                className="group relative flex flex-col items-center text-center"
+              >
+                {/* Node */}
+                <div className="relative z-10 mb-6">
+                  <span className="surface-solid flex h-14 w-14 items-center justify-center rounded-2xl text-ink-2 ring-1 ring-hairline transition-all duration-300 group-hover:text-[#ff7a7a] group-hover:ring-[#ea2a33]/40">
+                    <MaterialIcon name={step.icon} size={22} />
+                  </span>
+                  <span className="absolute -end-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-[#ea2a33] font-mono text-[10px] font-bold text-white shadow-lg shadow-[#ea2a33]/40">
+                    {index + 1}
+                  </span>
                 </div>
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-                    <div className="group relative flex flex-col items-center text-center">
-                        <div
-                            className="glass-panel relative mb-8 flex h-24 w-24 items-center justify-center rounded-full shadow-xl transition-transform group-hover:scale-110">
-                            <span className="material-symbols-outlined text-[48px] text-primary">person_add</span>
-                            <div
-                                className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-md">
-                                1</div>
-                        </div>
-                        <h3 className="mb-3 text-xl font-bold text-gray-900 dark:text-white">Create Account</h3>
-                        <p className="text-base text-gray-600 dark:text-gray-400 px-4">Sign up in seconds to unlock your initial
-                            free operations.</p>
-                        <div className="absolute right-[-15%] top-10 hidden w-full lg:block">
-                            <span
-                                className="material-symbols-outlined text-3xl text-gray-200 dark:text-white/10">trending_flat</span>
-                        </div>
-                    </div>
-                    <div className="group relative flex flex-col items-center text-center">
-                        <div
-                            className="glass-panel relative mb-8 flex h-24 w-24 items-center justify-center rounded-full shadow-xl transition-transform group-hover:scale-110">
-                            <span className="material-symbols-outlined text-[48px] text-primary">search</span>
-                            <div
-                                className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-md">
-                                2</div>
-                        </div>
-                        <h3 className="mb-3 text-xl font-bold text-gray-900 dark:text-white">Analyze Video</h3>
-                        <p className="text-base text-gray-600 dark:text-gray-400 px-4">Paste your YouTube link and our engine
-                            will extract all available metadata.</p>
-                        <div className="absolute right-[-15%] top-10 hidden w-full lg:block">
-                            <span
-                                className="material-symbols-outlined text-3xl text-gray-200 dark:text-white/10">trending_flat</span>
-                        </div>
-                    </div>
-                    <div className="group relative flex flex-col items-center text-center">
-                        <div
-                            className="glass-panel relative mb-8 flex h-24 w-24 items-center justify-center rounded-full shadow-xl transition-transform group-hover:scale-110">
-                            <span className="material-symbols-outlined text-[48px] text-primary">link</span>
-                            <div
-                                className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-md">
-                                3</div>
-                        </div>
-                        <h3 className="mb-3 text-xl font-bold text-gray-900 dark:text-white">Choose &amp; Edit</h3>
-                        <p className="text-base text-gray-600 dark:text-gray-400 px-4">Select your preferred quality, trim
-                            segments, or convert formats instantly.</p>
-                        <div className="absolute right-[-15%] top-10 hidden w-full lg:block">
-                            <span
-                                className="material-symbols-outlined text-3xl text-gray-200 dark:text-white/10">trending_flat</span>
-                        </div>
-                    </div>
-                    <div className="group relative flex flex-col items-center text-center">
-                        <div
-                            className="glass-panel relative mb-8 flex h-24 w-24 items-center justify-center rounded-full shadow-xl transition-transform group-hover:scale-110">
-                            <span className="material-symbols-outlined text-[48px] text-primary">download</span>
-                            <div
-                                className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-md">
-                                4</div>
-                        </div>
-                        <h3 className="mb-3 text-xl font-bold text-gray-900 dark:text-white">Download Instantly</h3>
-                        <p className="text-base text-gray-600 dark:text-gray-400 px-4">Save your processed media directly to
-                            your device with lightning speed.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    )
+
+                <h3 className="text-base font-bold text-ink">{t(`steps.${step.key}.title`)}</h3>
+                <p className="mt-2 max-w-xs text-sm leading-relaxed text-ink-3">
+                  {t(`steps.${step.key}.description`)}
+                </p>
+              </motion.li>
+            ))}
+          </motion.ol>
+        </div>
+      </div>
+    </section>
+  )
 }

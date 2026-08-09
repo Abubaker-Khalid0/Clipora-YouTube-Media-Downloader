@@ -1,8 +1,10 @@
-'use client'
+﻿'use client'
 
 import { motion } from 'framer-motion'
-import Image from 'next/image'
-import { Play, Clock, User as UserIcon } from 'lucide-react'
+import { useLocale } from 'next-intl'
+import { MaterialIcon } from '@/components/ui/MaterialIcon'
+import { VideoPlayer, type VideoPlayerHandle } from './VideoPlayer'
+import type { RefObject } from 'react'
 
 interface VideoPreviewProps {
   videoId?: string
@@ -15,19 +17,33 @@ interface VideoPreviewProps {
   trimEnabled?: boolean
   trimStart?: number
   trimEnd?: number
+  loopTrim?: boolean
+  playerRef?: RefObject<VideoPlayerHandle | null>
+  onTimeUpdate?: (seconds: number) => void
+  onDuration?: (seconds: number) => void
 }
 
-export function VideoPreview({ 
-  thumbnailUrl, 
-  title, 
-  channelName, 
+export function VideoPreview({
+  videoId,
+  title,
+  channelName,
   duration,
-  isLoading = false 
+  isLoading = false,
+  trimEnabled = false,
+  trimStart = 0,
+  trimEnd = 0,
+  loopTrim = false,
+  playerRef,
+  onTimeUpdate,
+  onDuration,
 }: VideoPreviewProps) {
+  const locale = useLocale()
+  const isRtl = locale === 'ar'
+
   if (isLoading) {
     return (
-      <div className="animate-pulse rounded-2xl aspect-video overflow-hidden relative bg-slate-100">
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 animate-[shimmer_2s_infinite]" />
+      <div className="animate-pulse rounded-2xl aspect-video overflow-hidden relative bg-veil-2">
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--veil-2)] via-[var(--panel-sunken)] to-[var(--veil-2)] animate-[shimmer_2s_infinite]" />
       </div>
     )
   }
@@ -37,53 +53,52 @@ export function VideoPreview({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className="rounded-2xl overflow-hidden aspect-video bg-slate-900 relative group shadow-2xl shadow-slate-300/40 ring-1 ring-black/5"
+      className="space-y-3"
     >
-      {/* Thumbnail */}
-      {thumbnailUrl ? (
-        <Image
-          src={thumbnailUrl}
-          alt={title}
-          fill
-          unoptimized
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+      {/* Interactive player */}
+      {videoId ? (
+        <div className="relative">
+          <VideoPlayer
+            ref={playerRef}
+            videoId={videoId}
+            trimEnabled={trimEnabled}
+            trimStart={trimStart}
+            trimEnd={trimEnd}
+            loopTrim={loopTrim}
+            onTimeUpdate={onTimeUpdate}
+            onDuration={onDuration}
+          />
+        </div>
       ) : (
-        <div className="absolute inset-0 bg-slate-800" />
+        <div className="rounded-2xl overflow-hidden aspect-video bg-ink" />
       )}
 
-      {/* Play button overlay — hidden by default, visible on hover */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-        <div className="w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center border border-white/20 transform scale-90 group-hover:scale-100 transition-transform duration-300">
-          <Play className="w-7 h-7 text-white ml-1" fill="white" />
+      {/* Metadata strip */}
+      <div
+        className="flex items-start justify-between gap-3 px-1"
+        dir={isRtl ? 'rtl' : 'ltr'}
+      >
+        <div className={`min-w-0 ${isRtl ? 'text-right' : 'text-left'}`}>
+          <h3 className="font-bold text-ink text-sm mb-1 line-clamp-2 leading-snug">
+            {title}
+          </h3>
+          <div className="flex items-center gap-4 text-xs text-ink-3">
+            <span className="flex items-center gap-1.5">
+              <MaterialIcon name="person" size={14} className="text-ink-2" />
+              {channelName}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <MaterialIcon name="schedule" size={14} className="text-ink-2" />
+              {duration}
+            </span>
+          </div>
         </div>
-      </div>
-
-      {/* Bottom gradient */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-      {/* Metadata overlay */}
-      <div className="absolute bottom-0 left-0 right-0 p-5">
-        <h3 className="font-bold text-white text-base mb-2.5 line-clamp-2 leading-snug drop-shadow-sm">
-          {title}
-        </h3>
-        <div className="flex items-center gap-4 text-sm">
-          <span className="flex items-center gap-1.5 text-white/75">
-            <UserIcon className="w-3.5 h-3.5" />
-            {channelName}
+        {trimEnabled && (
+          <span className="flex-shrink-0 flex items-center gap-1 text-[10px] font-bold text-brand bg-brand-tint px-2 py-1 rounded-full ring-1 ring-[var(--brand-tint-strong)]">
+            <MaterialIcon name="auto_awesome" size={10} />
+            Trim active
           </span>
-          <span className="flex items-center gap-1.5 text-white/75">
-            <Clock className="w-3.5 h-3.5" />
-            {duration}
-          </span>
-        </div>
-      </div>
-
-      {/* Duration badge */}
-      <div className="absolute top-3 right-3">
-        <span className="bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-2.5 py-1 rounded-lg">
-          {duration}
-        </span>
+        )}
       </div>
     </motion.div>
   )

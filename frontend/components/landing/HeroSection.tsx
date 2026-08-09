@@ -1,50 +1,125 @@
+﻿'use client'
+
 import Link from 'next/link'
+import { motion, useReducedMotion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
+import { MaterialIcon } from '@/components/ui/MaterialIcon'
+import { AppShowcase } from '@/components/landing/AppShowcase'
+
+/**
+ * HeroSection â€” dark canvas, brand-red aurora, headline, dual CTA, live product mock.
+ *
+ * Replaces the previous version, which centred a glass card over a blurred
+ * stock photo loaded from a third-party Google CDN and hard-coded its English
+ * copy. Everything here is translated and drawn locally.
+ */
+
+const EASE = [0.22, 1, 0.36, 1] as const
+
+const TRUST_ITEMS = ['noSignup', 'noWatermark', 'openSource'] as const
 
 export function HeroSection({ locale }: { locale: string }) {
+  const t = useTranslations('landing.hero')
+  const reduceMotion = useReducedMotion()
+
+  const rise = (delay: number) => ({
+    initial: reduceMotion ? { opacity: 0 } : { opacity: 0, y: 22 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.75, delay, ease: EASE },
+  })
 
   return (
-    <section
-        className="relative flex min-h-[calc(100vh-80px)] w-full flex-col items-center justify-center overflow-hidden py-20">
-        <div className="absolute inset-0 z-0">
-            <div className="absolute inset-0 bg-cover bg-center opacity-30 dark:opacity-20 blur-xl scale-110"
-                style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCbf9MWbVRgY-FlLxnVPmnWgw6-kR2INSPh5ckSk6tJOCIm07Ss58yhyKrjWL8xRXM9Avl5ebUJTtTtTfUrRPSXXD5aWqFvsIFdhXm_YugQ8UD1Rkm7FxjqXRes0q5xtBxgseaM0bL-cb_-VUTkYMd1HE2IHyNcK4QPbzI7QFsUCibrZO1e6Q308MSVx0pi3PP8jJoHvOIst71QSp8Qdq6q_Sa_2CGmoHaeNNYtJ3rT3I9Y95FYowZaJnvk0q_TxfYdg8pWlF_cLR6P')" }}>
-            </div>
-            <div
-                className="absolute inset-0 bg-gradient-to-b from-background-light/80 via-background-light/40 to-background-light dark:from-background-dark/80 dark:via-background-dark/40 dark:to-background-dark">
-            </div>
-        </div>
-        <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-4xl">
-                <div
-                    className="glass-panel flex flex-col items-center rounded-3xl p-8 text-center shadow-2xl shadow-primary/5 sm:p-12 lg:p-16">
-                    <div
-                        className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-primary dark:border-primary/30 dark:text-primary">
-                        <span className="relative flex h-2 w-2">
-                            <span
-                                className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
-                            <span className="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
-                        </span>
-                        TRY FOR FREE - NO CREDIT CARD REQUIRED
-                    </div>
-                    <h1
-                        className="mb-6 text-4xl font-black leading-tight tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl lg:text-7xl">
-                        More Than Just a <span className="text-primary">Downloader.</span>
-                    </h1>
-                    <p
-                        className="mb-10 max-w-2xl text-lg font-medium leading-relaxed text-gray-600 dark:text-gray-300 sm:text-xl">
-                        Download, Trim, and Convert. Get started with our basic tools for free and upgrade when you&apos;re
-                        ready for more power.
-                    </p>
-                    <div className="flex w-full flex-col items-center">
-                        <Link href={`/${locale}/auth#signup`}
-                            className="flex h-16 min-w-[280px] items-center justify-center gap-3 rounded-full bg-primary px-10 text-lg font-bold text-white shadow-xl shadow-primary/30 transition-all hover:bg-red-600 hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
-                            <span>Start Your Free Trial</span>
-                            <span className="material-symbols-outlined text-[24px]">arrow_forward</span>
-                        </Link>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <section className="relative overflow-hidden pb-20 pt-14 sm:pb-28 sm:pt-20">
+      {/* â”€â”€ Background layers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+        <div className="grid-lines absolute inset-0" />
+        <div className="aurora-blob aurora-blob--brand start-[-10%] top-[-18%] h-[520px] w-[520px]" />
+        <div className="aurora-blob aurora-blob--ember end-[-12%] top-[6%] h-[440px] w-[440px]" />
+        <div className="aurora-blob aurora-blob--violet start-[35%] top-[45%] h-[560px] w-[560px]" />
+        {/* Fade into the next section */}
+        <div className="fade-to-canvas absolute inset-x-0 bottom-0 h-40" />
+      </div>
+
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        {/* â”€â”€ Announcement badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        <motion.div {...rise(0)} className="flex justify-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-hairline bg-veil-2 px-3.5 py-1.5 backdrop-blur">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-[#ea2a33] opacity-75 pulse-ring" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#ea2a33]" />
+            </span>
+            <span className="text-[11px] font-semibold tracking-wide text-ink-2">
+              {t('badge')}
+            </span>
+          </span>
+        </motion.div>
+
+        {/* â”€â”€ Headline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        <motion.h1
+          {...rise(0.08)}
+          className="font-display mx-auto mt-7 max-w-4xl text-center text-[2.6rem] font-extrabold leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.5rem]"
+        >
+          <span className="text-gradient-light">{t('titleLead')}</span>
+          <br />
+          <span className="text-gradient-brand">{t('titleAccent')}</span>
+        </motion.h1>
+
+        <motion.p
+          {...rise(0.16)}
+          className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-ink-3 sm:text-lg"
+        >
+          {t('subtitle')}
+        </motion.p>
+
+        {/* â”€â”€ CTAs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        <motion.div
+          {...rise(0.24)}
+          className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
+        >
+          <Link
+            href={`/${locale}/dashboard`}
+            className="group inline-flex h-13 w-full items-center justify-center gap-2 rounded-full bg-[#ea2a33] px-8 py-3.5 text-sm font-bold text-white transition-all duration-300 glow-brand hover:bg-[#c91e26] hover:shadow-[0_16px_50px_-12px_rgba(234,42,51,0.8)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea2a33] sm:w-auto"
+          >
+            {t('ctaPrimary')}
+            <MaterialIcon
+              name="arrow_forward"
+              size={17}
+              className="transition-transform duration-300 group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5"
+            />
+          </Link>
+
+          <a
+            href="#how-it-works"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-hairline bg-veil px-7 py-3.5 text-sm font-semibold text-ink-2 backdrop-blur transition-colors hover:border-hairline-strong hover:text-ink sm:w-auto"
+          >
+            <MaterialIcon name="play_circle" size={17} />
+            {t('ctaSecondary')}
+          </a>
+        </motion.div>
+
+        {/* â”€â”€ Trust row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        <motion.ul
+          {...rise(0.32)}
+          className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5"
+        >
+          {TRUST_ITEMS.map((key) => (
+            <li key={key} className="inline-flex items-center gap-1.5 text-[11px] text-ink-4">
+              <MaterialIcon name="check_circle" size={13} className="text-emerald-400/70" filled />
+              {t(`trust.${key}`)}
+            </li>
+          ))}
+        </motion.ul>
+
+        {/* â”€â”€ Product mock â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        <motion.div
+          initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 1, delay: 0.4, ease: EASE }}
+          className="mt-16 sm:mt-20"
+        >
+          <AppShowcase />
+        </motion.div>
+      </div>
     </section>
   )
 }

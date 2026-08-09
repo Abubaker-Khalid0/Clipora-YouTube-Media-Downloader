@@ -3,9 +3,10 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/lib/routing'
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import ErrorTrackingInit from '@/components/ui/ErrorTrackingInit'
+import { ThemeProvider } from '@/components/ui/ThemeProvider'
+import { THEME_INIT_SCRIPT } from '@/lib/theme'
 import '../globals.css'
 
 // Google Fonts are loaded via standard link tags in the head for full control over weights.
@@ -45,13 +46,28 @@ export default async function LocaleLayout({ children, params }: Props) {
   const dir = locale === 'ar' ? 'rtl' : 'ltr'
 
   return (
-    <html lang={locale} dir={dir}>
+    // suppressHydrationWarning: THEME_INIT_SCRIPT mutates this element's class
+    // and style before React hydrates, so a mismatch here is expected.
+    <html lang={locale} dir={dir} suppressHydrationWarning>
       <head>
+        {/* Must run before first paint, otherwise dark-mode visitors see a
+            white flash while the bundle loads. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap"
+          rel="stylesheet"
+        />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&amp;display=swap"
+          rel="stylesheet"
+        />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&amp;display=swap"
           rel="stylesheet"
         />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
@@ -62,14 +78,16 @@ export default async function LocaleLayout({ children, params }: Props) {
       </head>
       <body className="font-['Manrope',sans-serif] antialiased">
         <NextIntlClientProvider messages={messages}>
-          <ErrorTrackingInit />
-          {/* LanguageSwitcher — fixed top-right (RTL: top-left), visible on every page (FR-017) */}
-          <div className="fixed top-4 end-4 z-50">
-            <LanguageSwitcher />
-          </div>
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
+          <ThemeProvider>
+            <ErrorTrackingInit />
+            {/* LanguageSwitcher and ThemeToggle are rendered by each surface's own
+                header (Navbar on the landing page, DashboardNavbar in the app)
+                rather than floating here — a fixed copy at this level overlapped
+                the navbar CTA. */}
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
+          </ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

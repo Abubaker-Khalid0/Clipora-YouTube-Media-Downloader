@@ -1,83 +1,194 @@
 {
-  "auth": {
-    "tabs": {
-      "login": "تسجيل الدخول",
-      "signup": "إنشاء حساب"
-    },
-    "login": {
-      "email": "البريد الإلكتروني",
-      "password": "كلمة المرور",
-      "submit": "تسجيل الدخول",
-      "forgotPassword": "نسيت كلمة المرور؟",
-      "or": "أو",
-      "google": "المتابعة مع Google",
-      "errors": {
-        "invalid": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
-        "unverified": "يرجى التحقق من بريدك الإلكتروني قبل تسجيل الدخول.",
-        "locked": "الحساب مقفل. حاول مرة أخرى خلال {minutes} دقيقة."
-      }
-    },
-    "signup": {
-      "fullName": "الاسم الكامل",
-      "email": "البريد الإلكتروني",
-      "password": "كلمة المرور",
-      "confirmPassword": "تأكيد كلمة المرور",
-      "submit": "إنشاء الحساب",
-      "or": "أو",
-      "google": "المتابعة مع Google",
-      "errors": {
-        "emailTaken": "يوجد حساب بهذا البريد الإلكتروني بالفعل.",
-        "passwordMismatch": "كلمتا المرور غير متطابقتين.",
-        "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل."
-      }
-    },
-    "verification": {
-      "sent": "تحقق من بريدك الإلكتروني للحصول على رابط التحقق.",
-      "resend": "إعادة إرسال بريد التحقق",
-      "expired": "انتهت صلاحية رابط التحقق.",
-      "status": "البريد الإلكتروني غير محقق بعد."
-    },
-    "reset": {
-      "trigger": "هل نسيت كلمة مرورك؟",
-      "email": "أدخل بريدك الإلكتروني",
-      "submit": "إرسال رابط إعادة التعيين",
-      "sent": "إذا كان الحساب موجوداً، فقد تم إرسال رابط إعادة التعيين.",
-      "rateLimited": "يرجى الانتظار قبل طلب رابط جديد.",
-      "newPassword": "كلمة المرور الجديدة",
-      "confirmPassword": "تأكيد كلمة المرور الجديدة",
-      "save": "حفظ كلمة المرور الجديدة",
-      "success": "تم تحديث كلمة المرور. يرجى تسجيل الدخول."
-    }
-  },
   "landing": {
     "navbar": {
-      "login": "تسجيل الدخول",
-      "start": "ابدأ مجاناً",
-      "features": "المميزات"
+      "ariaLabel": "التنقّل الرئيسي",
+      "toggleMenu": "إظهار أو إخفاء قائمة التنقّل",
+      "start": "افتح التطبيق",
+      "features": "الإمكانات",
+      "howItWorks": "كيف يعمل",
+      "faq": "أسئلة شائعة"
     },
     "hero": {
-      "badge": "جرّب مجاناً — لا حاجة لبطاقة ائتمان",
-      "title": "أكثر من مجرد",
+      "badge": "بلا حساب · بلا بطاقة · بلا علامة مائية",
+      "titleLead": "أكثر من مجرّد",
       "titleAccent": "أداة تحميل.",
-      "subtitle": "حمّل، قصّ، وحوّل. ابدأ بأدواتنا الأساسية مجاناً.",
-      "cta": "ابدأ تجربتك المجانية"
+      "subtitle": "حمّل أي فيديو من يوتيوب بجودة تصل إلى 4K، أو استخرج الصوت، أو اقتطع مقطعاً بدقّة، أو خُذ الصورة المصغّرة، أو استخرج النص الكامل. لصقة واحدة ونقرة واحدة.",
+      "ctaPrimary": "افتح التطبيق",
+      "ctaSecondary": "شاهد كيف يعمل",
+      "trust": {
+        "noSignup": "بلا تسجيل",
+        "noWatermark": "بلا علامة مائية",
+        "openSource": "حذف تلقائي للملفات"
+      }
+    },
+    "showcase": {
+      "urlPlaceholder": "الصق رابط يوتيوب…",
+      "analyze": "تحليل",
+      "analyzing": "جارٍ التحليل",
+      "qualityLabel": "الجودة",
+      "previewHint": "تظهر المعاينة بعد التحليل",
+      "videoTitle": "Never Gonna Give You Up (4K Remaster)",
+      "videoChannel": "Rick Astley",
+      "readyFile": "حفظ الملف",
+      "waiting": "في الانتظار",
+      "status": {
+        "typing": "خامل",
+        "analyzing": "يعمل",
+        "analyzed": "جاهز",
+        "processing": "يعمل",
+        "done": "اكتمل"
+      },
+      "stage": {
+        "typing": "في انتظار رابط",
+        "analyzing": "قراءة الصيغ",
+        "analyzed": "جاهز للمعالجة",
+        "processing": "جارٍ التحميل",
+        "ready": "تم"
+      }
+    },
+    "marquee": {
+      "heading": "كل ما تستطيع الأداة إنتاجه"
+    },
+    "features": {
+      "eyebrow": "الإمكانات",
+      "heading": "رابط واحد يدخل،",
+      "headingAccent": "وستّ مخرجات تخرج.",
+      "subheading": "كل أداة أدناه تعمل فعلاً في التطبيق الآن. لا شيء هنا وعد مستقبلي.",
+      "items": {
+        "download": {
+          "title": "تحميل حتى 4K",
+          "description": "اختر أي دقّة يوفّرها الفيديو فعلاً، من 144p إلى 2160p. يُجلب مسار الصورة ومسار الصوت كلٌّ على حدة ثم يُدمجان عبر FFmpeg، فتحصل على ملف واحد نظيف بكامل الجودة.",
+          "tag": "144p → 2160p"
+        },
+        "trim": {
+          "title": "اقتطاع دقيق",
+          "description": "تنقّل في الشريط الزمني، حدّد البداية والنهاية، وخُذ ذلك المقطع فقط. تضبط القطع على المشغّل الحقيقي بدل تخمين التوقيتات.",
+          "tag": "ساعة:دقيقة:ثانية"
+        },
+        "audio": {
+          "title": "استخراج الصوت",
+          "description": "استبعد مسار الصورة تماماً واحتفظ بأفضل مسار صوتي متاح، للبودكاست أو المحاضرات أو الموسيقى.",
+          "tag": "MP3 · M4A · OPUS"
+        },
+        "transcript": {
+          "title": "النص الكامل",
+          "description": "استخرج ترجمات الفيديو كنص قابل للبحث، ثم انسخه أو احفظه في ملف. يعمل مع الترجمات اليدوية والتلقائية.",
+          "tag": "نص قابل للبحث"
+        },
+        "subtitles": {
+          "title": "ترجمة محروقة في الصورة",
+          "description": "اطبع الترجمة داخل الصورة نفسها بالنمط والخط والحجم والموضع الذي تختاره — جاهزة للمنصّات التي تكتم الصوت تلقائياً.",
+          "tag": "6 أنماط"
+        },
+        "privacy": {
+          "title": "لا نحتفظ بشيء",
+          "description": "لا حساب ولا مكتبة. يبقى ملفك على الخادم بالقدر الذي يكفي لتحميله فقط، ثم تحذفه مهمة تنظيف دورية نهائياً.",
+          "tag": "حذف تلقائي"
+        }
+      }
     },
     "howItWorks": {
-      "heading": "كيف يعمل؟",
-      "step1Title": "إنشاء حساب",
-      "step1Desc": "سجّل مجاناً واحصل على 10 رصيد فوراً.",
-      "step2Title": "تحليل الفيديو",
-      "step2Desc": "الصق أي رابط من YouTube وسنجلب جميع الصيغ المتاحة.",
-      "step3Title": "اختر وعدّل",
-      "step3Desc": "اختر الجودة والصيغة، وقص المقطع الذي تريده اختيارياً.",
-      "step4Title": "تحميل",
-      "step4Desc": "احصل على ملفك فوراً — فيديو أو صوت أو صورة مصغّرة."
+      "eyebrow": "المسار",
+      "heading": "من الرابط إلى الملف في",
+      "headingAccent": "أربع خطوات.",
+      "subheading": "بلا إعداد، بلا تهيئة، وبلا حساب تُنشئه أولاً.",
+      "steps": {
+        "paste": {
+          "title": "الصق الرابط",
+          "description": "أي رابط مشاهدة أو Shorts أو youtu.be يعمل. تُزال معاملات قوائم التشغيل تلقائياً."
+        },
+        "analyze": {
+          "title": "قراءة الصيغ",
+          "description": "يقرأ Clipora قائمة المسارات الحقيقية من المصدر مباشرة، ويعرض الجودات الموجودة فعلاً فقط."
+        },
+        "configure": {
+          "title": "اختر المخرج",
+          "description": "اختر دقّة، أو انتقل إلى الصوت، أو حدّد نطاق اقتطاع، أو اختر النص أو الصورة المصغّرة بدلاً من ذلك."
+        },
+        "download": {
+          "title": "احفظ الملف",
+          "description": "يتدفّق التقدّم لحظة بلحظة أثناء عمل الخادم. وفي اللحظة التي ينتهي فيها، ينزل الملف إلى جهازك مباشرة."
+        }
+      }
+    },
+    "stats": {
+      "resolution": {
+        "label": "أقصى دقّة",
+        "hint": "حيث يوفّرها المصدر"
+      },
+      "formats": {
+        "label": "صيغ المخرجات",
+        "hint": "فيديو، صوت، صورة، نص"
+      },
+      "cost": {
+        "label": "التكلفة الكلّية",
+        "hint": "بلا حساب وبلا بطاقة"
+      },
+      "retention": {
+        "label": "دقائق الاحتفاظ",
+        "hint": "ثم يُحذف تلقائياً"
+      }
+    },
+    "faq": {
+      "eyebrow": "أسئلة",
+      "heading": "قبل أن تلصق",
+      "headingAccent": "ذلك الرابط.",
+      "items": {
+        "cost": {
+          "question": "هل هناك مقابل خفي؟ وهل أحتاج حساباً؟",
+          "answer": "لا حساب ولا دفع ولا مؤقّت تجربة. الصق رابطاً واستخدمها. لا يوجد شيء تسجّل فيه."
+        },
+        "quality": {
+          "question": "لماذا تغيب جودة 4K في بعض الفيديوهات؟",
+          "answer": "يعرض Clipora الدقّات التي ينشرها الفيديو فعلاً فقط. إن لم يرفع صاحب المحتوى نسخة أعلى من 1080p، فلا توجد أداة تستطيع اختراع نسخة 4K. قائمة الجودات التي تراها تُقرأ لحظياً من المصدر."
+        },
+        "privacy": {
+          "question": "ماذا يحدث لملفاتي؟",
+          "answer": "تُكتب في مخزن مؤقّت على الخادم، وتُسلَّم إليك مرة واحدة، ثم تحذفها مهمة تنظيف مجدولة. لا توجد مكتبة مستخدم ولا سجل ولا تتبّع خارجي لتحميلاتك."
+        },
+        "restricted": {
+          "question": "لماذا فشل أحد الفيديوهات؟",
+          "answer": "الفيديوهات الحصرية للمشتركين والخاصة والمقيَّدة عمرياً والمحجوبة جغرافياً لا يمكن قراءتها بلا بيانات الحساب المطابق، فتُرفض برسالة سبب واضحة بدلاً من فشل صامت."
+        },
+        "playlists": {
+          "question": "هل أستطيع تحميل قائمة تشغيل أو قناة كاملة؟",
+          "answer": "ليس حالياً. صُمّم Clipora لمعالجة فيديو واحد في المرة. وإن لصقت رابطاً يحتوي معامل قائمة تشغيل، فسيستهدف ذلك الفيديو المفرد بهدوء."
+        },
+        "audio": {
+          "question": "هل أستطيع الحصول على الصوت وحده دون الفيديو؟",
+          "answer": "نعم. حوّل النمط إلى الصوت، فيجلب Clipora أفضل مسار صوتي متاح مباشرة ويتجاوز مسار الصورة تماماً، فيصبح التحميل أصغر وأسرع بكثير."
+        }
+      }
+    },
+    "finalCta": {
+      "eyebrow": "جاهز حين تكون جاهزاً",
+      "title": "توقّف عن مصارعة",
+      "titleAccent": "مواقع التحميل المشبوهة.",
+      "description": "بلا نوافذ منبثقة، بلا أزرار مزيّفة، بلا علامة مائية، وبلا جمع لبريدك. الصق رابطاً وخُذ ملفك.",
+      "cta": "افتح التطبيق",
+      "note": "يعمل فوراً في متصفّحك"
     },
     "footer": {
+      "tagline": "طريقة نظيفة وسريعة لتحميل وقصّ وتحويل وسائط يوتيوب — بلا فخاخ إعلانات.",
+      "productHeading": "المنتج",
+      "legalHeading": "قانوني",
+      "links": {
+        "dashboard": "افتح التطبيق",
+        "features": "الإمكانات",
+        "howItWorks": "كيف يعمل",
+        "faq": "أسئلة شائعة",
+        "privacy": "سياسة الخصوصية",
+        "terms": "شروط الخدمة",
+        "contact": "تواصل معنا"
+      },
       "copyright": "© {year} Clipora. جميع الحقوق محفوظة.",
-      "privacy": "سياسة الخصوصية",
-      "terms": "شروط الخدمة",
-      "contact": "تواصل معنا"
+      "disclaimer": "Clipora غير مرتبط بـ YouTube أو Google. يُرجى احترام حقوق النشر وتحميل المحتوى الذي تملك حق استخدامه فقط."
+    }
+  },
+  "common": {
+    "theme": {
+      "switchToLight": "التبديل إلى الوضع النهاري",
+      "switchToDark": "التبديل إلى الوضع الليلي"
     }
   },
   "legal": {
@@ -90,6 +201,32 @@
     "cta": "العودة للرئيسية"
   },
   "dashboard": {
+    "navHome": "الرئيسية",
+    "dismiss": "إغلاق",
+    "addToQueue": "أضف إلى القائمة",
+    "emptyBadge": "لا حاجة لحساب",
+    "invalidUrl": "هذا ليس رابط يوتيوب صالحاً",
+    "clearUrl": "مسح الرابط",
+    "trimStartHandle": "بداية الاقتطاع",
+    "trimEndHandle": "نهاية الاقتطاع",
+    "trimUnavailable": "هذا الفيديو لا يُبلّغ عن مدّة، فلا يمكن تحديد مقطع. البثّ المباشر غير قابل للاقتطاع.",
+    "playerPlay": "تشغيل",
+    "playerPause": "إيقاف مؤقّت",
+    "playerMute": "كتم الصوت",
+    "playerUnmute": "إلغاء الكتم",
+    "playerVolume": "مستوى الصوت",
+    "playerSeek": "التنقّل في المقطع",
+    "playerSpeed": "سرعة التشغيل",
+    "playerFullscreen": "ملء الشاشة",
+    "playerExitFullscreen": "إنهاء ملء الشاشة",
+    "playerUnavailable": "لا يمكن تشغيل هذا الفيديو هنا. ربما عطّل صاحبه التضمين، أو أنه محجوب في منطقتك.",
+    "playerOpenOnYoutube": "افتحه على يوتيوب",
+    "outputQuestion": "ماذا تريد من هذا الفيديو؟",
+    "comingSoon": "قريباً",
+    "keepAudioTrack": "أبقِ المسار الصوتي",
+    "keepAudioTrackOffHint": "سيُحمَّل الفيديو صامتاً بلا صوت.",
+    "subtitleSoonTitle": "الترجمة المحروقة قريباً",
+    "subtitleSoonBody": "طبع الترجمة داخل الصورة يحتاج خطوة ترميز في الخادم لم تُبنَ بعد. حتى ذلك الحين، استخدم مخرَج «النص» للحصول على الترجمة كملف.",
     "placeholder": "https://www.youtube.com/watch?v=...",
     "analyze": "تحليل",
     "analyzing": "جارٍ التحليل...",
@@ -100,20 +237,16 @@
     "trimming": "جارٍ القص...",
     "downloadReady": "جاهز للتحميل",
     "downloaded": "تم التحميل ✓",
-    "creditsRemaining": "متبقي {count} رصيد",
-    "noActivity": "لا يوجد نشاط بعد",
-    "noActivitySub": "ستظهر تحميلاتك هنا",
-    "welcome": "مرحباً بك في Clipora، {name}! 🎬",
-    "welcomeSub": "لديك {credits} رصيد مجاني للبدء.",
-    "welcomeHint": "الصق رابط YouTube أدناه للبدء.",
+    "noActivity": "لا يوجد نشاط حديث",
+    "noActivitySub": "ستظهر الروابط المحللة والتحميلات هنا",
+    "noActivityCta": "حلّل رابطاً للبدء",
+    "emptyHeading": "الصق رابط YouTube للبدء",
+    "emptySub": "حمّل فيديوهات، استخرج الصوت، احصل على الصور المصغّرة، أو قص المقاطع — كل شيء من مكان واحد.",
     "emptyVideoHint": "ستظهر معاينة الفيديو هنا بعد التحليل",
     "emptySettingsHint": "حلّل رابطاً لإلغاء قفل الإعدادات",
     "trimSegment": "قص المقطع",
     "trimPrecision": "اختيار المقطع بدقة",
     "trimReset": "إعادة تعيين",
-    "zeroCreditsTitle": "نفدت الأرصدة",
-    "zeroCreditsMessage": "لقد استنفدت جميع أرصدتك. شكراً لتجربة Clipora!",
-    "zeroCreditsAction": "حسناً",
     "recentActivity": "النشاط الأخير",
     "modeVideo": "فيديو",
     "modeAudio": "صوت",
@@ -125,12 +258,16 @@
     "fileExpired": "انتهت صلاحية الملف",
     "processingFailed": "فشلت المعالجة. يرجى المحاولة مرة أخرى.",
     "enableTrim": "تفعيل القص",
-    "profile": "الملف الشخصي",
     "startTime": "البداية",
     "endTime": "النهاية",
     "trimValidation": "يجب أن يكون وقت البداية أقل من وقت النهاية.",
+    "trimSetStart": "تعيين البداية",
+    "trimSetEnd": "تعيين النهاية",
+    "trimPreview": "معاينة",
+    "trimSetStartHint": "تعيين بداية القص عند موضع التشغيل الحالي",
+    "trimSetEndHint": "تعيين نهاية القص عند موضع التشغيل الحالي",
+    "trimPreviewHint": "تشغيل المقطع المحدد بشكل متكرر",
     "untitled": "فيديو بدون عنوان",
-    "credits": "رصيد",
     "outputSettings": "إعدادات الإخراج",
     "pasteUrl": "الصق رابط YouTube أعلاه",
     "videoTypeLabel": "نوع الفيديو",
@@ -139,7 +276,6 @@
     "thumbnailFormatLabel": "صيغة الصورة المصغّرة",
     "download": "تحميل",
     "delete": "حذف",
-    "creditsLoadError": "تعذّر تحميل الأرصدة. يتم عرض القيمة المحفوظة.",
     "activityVideoAudio": "فيديو + صوت",
     "activityVideoOnly": "فيديو فقط",
     "activityVideo": "فيديو",
@@ -147,41 +283,65 @@
     "activityThumbnail": "صورة مصغّرة",
     "activityDownload": "تحميل",
     "trimOutputLabel": "نوع الإخراج",
-    "trimOutputAudioOnly": "صوت فقط"
-  },
-  "profile": {
-    "memberSince": "عضو منذ {date}",
-    "creditsRemaining": "متبقي {n} رصيد",
-    "changePassword": "تغيير كلمة المرور",
-    "currentPassword": "كلمة المرور الحالية",
-    "newPassword": "كلمة المرور الجديدة",
-    "confirmPassword": "تأكيد كلمة المرور الجديدة",
-    "saveChanges": "حفظ التغييرات",
-    "saving": "جارٍ الحفظ…",
-    "successMessage": "تم تحديث كلمة المرور بنجاح.",
-    "errorMismatch": "كلمتا المرور غير متطابقتين.",
-    "errorMinLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
-    "errorWrongPassword": "كلمة المرور الحالية غير صحيحة.",
-    "errorGeneric": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
-    "oauthNotice": "يتم إدارة كلمة مرورك عبر حساب Google الخاص بك.",
-    "lockoutNotice": "محاولات فاشلة كثيرة. حاول مرة أخرى خلال 15 دقيقة.",
-    "logout": "تسجيل الخروج",
-    "logoutTitle": "هل أنت متأكد من تسجيل الخروج؟",
-    "logoutDescription": "سيتم تسجيل خروجك من حسابك في Clipora.",
-    "logoutCancel": "إلغاء",
-    "logoutConfirm": "تسجيل الخروج",
-    "promoTitle": "كود ترويجي",
-    "promoSubtitle": "أدخل كود ترويجي للحصول على رصيد إضافي",
-    "promoPlaceholder": "أدخل الكود الترويجي...",
-    "promoRedeem": "تفعيل",
-    "promoRedeeming": "جارٍ التفعيل...",
-    "promoSuccess": "تم تفعيل الكود بنجاح!",
-    "promoCreditsLabel": "رصيد",
-    "promoRedeemAnother": "تفعيل كود آخر",
-    "promoInvalidCode": "هذا الكود غير صالح أو غير موجود.",
-    "promoAlreadyUsed": "لقد استخدمت هذا الكود من قبل.",
-    "promoExpired": "انتهت صلاحية هذا الكود.",
-    "promoMaxUses": "وصل هذا الكود لحد الاستخدام الأقصى.",
-    "promoServerError": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+    "trimOutputAudioOnly": "صوت فقط",
+    "modeTranscript": "النص",
+    "transcriptLoading": "جارٍ جلب النص...",
+    "transcriptEmpty": "لا يتوفر نص لهذا الفيديو",
+    "transcriptEmptySub": "هذا الفيديو لا يحتوي على ترجمة أو نصوص",
+    "transcriptCopy": "نسخ",
+    "transcriptCopied": "تم النسخ!",
+    "transcriptDownload": "تحميل",
+    "transcriptLanguage": "اللغة",
+    "transcriptGenerated": "تلقائي",
+    "transcriptManual": "يدوي",
+    "transcriptError": "فشل تحميل النص",
+    "transcriptRetry": "إعادة المحاولة",
+    "transcriptLines": "سطر",
+    "transcriptReady": "النص جاهز للجلب",
+    "transcriptReadySub": "اضغط الزر أدناه لجلب نص الفيديو",
+    "transcriptFetchBtn": "جلب النص",
+    "transcriptSearchPlaceholder": "ابحث في النص...",
+    "transcriptSearchResults": "{count} سطر مطابق",
+    "transcriptSearchNoResults": "لا توجد نتائج",
+    "reEdit": "إعادة تعديل هذا الفيديو",
+    "featureMenuTitle": "الأدوات",
+    "featureDownload": "تحميل",
+    "featureDownloadDesc": "حمّل الفيديو بأي جودة",
+    "featureTrim": "قص وتقطيع",
+    "featureTrimDesc": "اقتطع مقطع محدد",
+    "featureThumbnail": "صورة مصغّرة",
+    "featureThumbnailDesc": "احصل على صورة الفيديو",
+    "featureTranscript": "النص",
+    "featureTranscriptDesc": "احصل على الترجمة كنص",
+    "featureSubtitle": "ترجمة",
+    "featureSubtitleDesc": "حرق الترجمة على الفيديو",
+    "subtitleSource": "المصدر",
+    "subtitleManual": "يدوي",
+    "subtitleFetchYT": "جلب ترجمة YouTube",
+    "subtitleFetching": "جارٍ الجلب...",
+    "subtitleUploadSrt": "رفع ملف SRT / VTT",
+    "subtitleLines": "أسطر الترجمة",
+    "subtitleLinesCount": "سطر",
+    "subtitleAddLine": "إضافة سطر",
+    "subtitleTextPlaceholder": "اكتب نص الترجمة...",
+    "subtitleEmpty": "سطر فارغ",
+    "subtitleStyleTitle": "الستايل والخط",
+    "subtitleStyleClassic": "كلاسيك",
+    "subtitleStyleTiktok": "تيك توك",
+    "subtitleStyleModernBox": "مربع",
+    "subtitleStyleCinematic": "سينما",
+    "subtitleStyleOutline": "محيط",
+    "subtitleStyleBoldCenter": "عريض",
+    "subtitleFont": "الخط",
+    "subtitleSize": "الحجم",
+    "subtitleSizeSmall": "صغير",
+    "subtitleSizeMedium": "متوسط",
+    "subtitleSizeLarge": "كبير",
+    "subtitlePosition": "الموقع",
+    "subtitlePosTop": "أعلى",
+    "subtitlePosCenter": "وسط",
+    "subtitlePosBottom": "أسفل",
+    "includeTrimTranscript": "تضمين النص المقصوص (SRT)",
+    "trimTranscriptEmpty": "لا توجد أسطر نصية في نطاق القص المحدد"
   }
 }

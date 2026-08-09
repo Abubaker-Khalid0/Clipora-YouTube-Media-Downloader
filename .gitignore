@@ -40,10 +40,6 @@ venv/
 backend/storage/temp/*
 !backend/storage/temp/.gitkeep
 
-# ─── Supabase ────────────────────────────────────────────────────────────────
-supabase/.branches/
-supabase/.temp/
-
 # ─── OS Artifacts ────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db

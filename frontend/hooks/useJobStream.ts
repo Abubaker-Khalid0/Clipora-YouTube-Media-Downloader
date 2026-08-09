@@ -157,7 +157,7 @@ export function useJobStream(jobId: string | null): JobStreamState {
     return () => {
       esRef.current?.close()
     }
-  }, [jobId])
+  }, [jobId, log])
 
   return state
 }

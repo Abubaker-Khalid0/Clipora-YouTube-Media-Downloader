@@ -15,7 +15,9 @@ logger = logging.getLogger(__name__)
 _ffmpeg_available: Optional[bool] = None
 
 # Hard timeout for each FFmpeg subprocess.
-_TRIM_TIMEOUT_SECONDS:      int = 300
+# Raised from 300s: trimming now re-encodes for an accurate cut, so a long or
+# high-resolution segment takes materially longer than a stream copy did.
+_TRIM_TIMEOUT_SECONDS:      int = 900
 _CONVERT_TIMEOUT_SECONDS:   int = 30
 _VERSION_TIMEOUT_SECONDS:   int = 5
 
@@ -83,6 +85,18 @@ def _assert_output(path: str, label: str) -> Optional[str]:
 # Trim
 # ---------------------------------------------------------------------------
 
+def timecode_to_seconds(timecode: str) -> int:
+    """Convert ``HH:MM:SS`` to whole seconds. Returns 0 on malformed input."""
+    try:
+        parts = [int(p) for p in timecode.strip().split(":")]
+    except ValueError:
+        return 0
+    if len(parts) != 3:
+        return 0
+    hours, minutes, seconds = parts
+    return hours * 3600 + minutes * 60 + seconds
+
+
 def trim_media(
     input_path: str,
     start: str,
@@ -93,13 +107,14 @@ def trim_media(
     keep_video: bool = True,
 ) -> tuple[bool, Optional[str]]:
     """
-    Trim a video or audio file to [start, end] using stream copy.
+    Trim a video or audio file to [start, end], accurate to the requested second.
 
     Args:
         input_path:  Absolute path to the source file.
         start:       Start timestamp in HH:MM:SS format.
         end:         End timestamp in HH:MM:SS format.
-        output_path: Absolute path for the trimmed output file.
+        output_path: Absolute path for the trimmed output file. Must be an
+                     MP4-family container (.mp4 / .m4a) — see below.
         keep_audio:  When False, the audio stream is dropped (-an).
         keep_video:  When False, the video stream is dropped (-vn).
 
@@ -108,30 +123,44 @@ def trim_media(
         (False, error_message) on failure.
 
     Notes:
-        - ``-ss`` placed before ``-i`` enables fast input seeking (keyframe-level).
-          This is intentional: re-encoding for frame-accurate trim is left to
-          the caller if needed.
-        - ``-avoid_negative_ts make_zero`` prevents negative PTS values that
-          break some players after a seek-based trim.
+        This used to run ``-ss`` before ``-i`` together with ``-c copy``. Stream
+        copy cannot cut inside a GOP, so the start snapped back to the preceding
+        keyframe and the clip came out longer than asked: a 5s–12s request
+        produced 9.6s of video, because the nearest keyframe before 5s sat at
+        ~2.4s. Re-encoding is the only way to honour an arbitrary in-point, so
+        the streams are decoded and re-encoded here.
+
+        ``-t`` (duration) is used rather than ``-to`` (stop timestamp): combined
+        with an input-side ``-ss`` the meaning of ``-to`` depends on whether
+        timestamps were rebased, which is exactly the ambiguity that hid this bug.
     """
     if not check_ffmpeg():
         return False, "FFmpeg is required for trimming but is not installed"
 
+    duration = timecode_to_seconds(end) - timecode_to_seconds(start)
+    if duration <= 0:
+        return False, "Trim end must be greater than trim start"
+
     cmd = [
         "ffmpeg",
+        # Before -i: ffmpeg still seeks fast, then decodes and drops frames up to
+        # the exact in-point because the output is re-encoded.
         "-ss", start,
-        "-to", end,
         "-i", input_path,
-        "-c", "copy",
-        "-avoid_negative_ts", "make_zero",
+        "-t", str(duration),
     ]
 
-    if not keep_audio:
-        cmd.append("-an")
-    if not keep_video:
+    if keep_video:
+        cmd += ["-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p"]
+    else:
         cmd.append("-vn")
 
-    cmd.extend(["-y", output_path])
+    if keep_audio:
+        cmd += ["-c:a", "aac", "-b:a", "192k"]
+    else:
+        cmd.append("-an")
+
+    cmd.extend(["-movflags", "+faststart", "-y", output_path])
 
     try:
         result = _run(cmd, _TRIM_TIMEOUT_SECONDS)

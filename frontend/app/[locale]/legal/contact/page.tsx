@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { MaterialIcon } from '@/components/ui/MaterialIcon'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -33,7 +33,7 @@ export default async function ContactPage({ params }: Props) {
                      shadow-lg transition-all duration-300
                      hover:bg-[#c91e26] hover:scale-105"
         >
-          <ArrowLeft size={14} aria-hidden="true" />
+          <MaterialIcon name="arrow_back" size={14} />
           Back to Home
         </Link>
       </div>

@@ -1,8 +1,9 @@
-'use client'
+﻿'use client'
 
 import { useTranslations } from 'next-intl'
-import { Loader2, Download, CheckCircle2, Sparkles } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
+import { MaterialIcon } from '@/components/ui/MaterialIcon'
+import { LiquidFill } from '@/components/ui/LiquidFill'
 
 type ButtonStage =
   | 'idle'
@@ -20,6 +21,17 @@ interface ProcessingButtonProps {
   disabled?: boolean
 }
 
+/**
+ * ProcessingButton — primary action for the selected tool.
+ *
+ * Progress is now the water level inside the button itself. The old version
+ * stacked three separate indicators: a white overlay that grew from the left, a
+ * spinning icon, and a second progress bar underneath — three things saying one
+ * thing, in a button that also swapped between red, blue, and green gradients.
+ *
+ * `initializing` and `merging` have no percentage, so the level breathes rather
+ * than sitting frozen at 0 or faking movement.
+ */
 export function ProcessingButton({
   stage,
   percent = 0,
@@ -28,10 +40,20 @@ export function ProcessingButton({
 }: ProcessingButtonProps) {
   const t = useTranslations('dashboard')
 
-  const getLabel = (): string => {
+  const isProcessing =
+    stage === 'initializing' ||
+    stage === 'downloading' ||
+    stage === 'merging' ||
+    stage === 'trimming'
+
+  const isReady = stage === 'ready'
+  const isDownloaded = stage === 'downloaded'
+
+  // Only `downloading` reports a real number; the rest are opaque server phases.
+  const hasPercent = stage === 'downloading' || stage === 'trimming'
+
+  const label = (): string => {
     switch (stage) {
-      case 'idle':
-        return t('startProcessing')
       case 'initializing':
         return t('initializing')
       case 'downloading':
@@ -49,82 +71,72 @@ export function ProcessingButton({
     }
   }
 
-  const getIcon = () => {
-    if (isProcessing) return <Loader2 className="w-5 h-5 animate-spin" />
-    if (stage === 'ready') return <Download className="w-5 h-5" />
-    if (stage === 'downloaded') return <CheckCircle2 className="w-5 h-5" />
-    return <Sparkles className="w-5 h-5" />
+  const icon = (): string => {
+    if (isProcessing) return 'water_drop'
+    if (isReady) return 'download'
+    if (isDownloaded) return 'check_circle'
+    return 'auto_awesome'
   }
 
-  const isProcessing =
-    stage === 'initializing' ||
-    stage === 'downloading' ||
-    stage === 'merging' ||
-    stage === 'trimming'
-
-  const isDownloaded = stage === 'downloaded'
-  const isReady = stage === 'ready'
+  // One base colour per state instead of a gradient swap, so the water reads as
+  // a lighter shade of the same liquid rather than a different material.
+  const base = isDownloaded
+    ? 'bg-emerald-600'
+    : isReady
+      ? 'bg-[#0f766e]'
+      : isProcessing
+        ? 'bg-[#8f1319]'
+        : 'bg-[#ea2a33] hover:bg-[#c91e26] active:scale-[0.99]'
 
   return (
-    <div className="relative">
-      <button
-        onClick={onClick}
-        disabled={disabled || isProcessing}
-        className={`
-          relative w-full text-white font-bold py-4 rounded-xl
-          transition-all duration-300 ease-out
-          flex items-center justify-center gap-2.5 overflow-hidden
-          ${isDownloaded
-            ? 'bg-gradient-to-r from-emerald-500 to-green-500 shadow-lg shadow-green-500/25'
-            : isReady
-              ? 'bg-gradient-to-r from-blue-500 to-indigo-500 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 active:scale-[0.98]'
-              : 'bg-gradient-to-r from-red-500 to-red-600 shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/30 active:scale-[0.98]'
-          }
-          ${disabled || isProcessing ? 'opacity-60 cursor-not-allowed !shadow-none' : ''}
-        `}
-      >
-        {/* Progress bar background (during processing) */}
-        {isProcessing && (
-          <motion.div
-            className="absolute inset-0 bg-white/10"
-            initial={{ width: '0%' }}
-            animate={{ width: `${percent}%` }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            style={{ originX: 0 }}
-          />
-        )}
-
-        {/* Button content */}
-        <span className="relative z-10 flex items-center gap-2.5">
-          {getIcon()}
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={stage}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.15 }}
-              aria-live="polite"
-              aria-atomic="true"
-              className="text-sm"
-            >
-              {getLabel()}
-            </motion.span>
-          </AnimatePresence>
-        </span>
-      </button>
-
-      {/* Progress indicator below button */}
+    <button
+      onClick={onClick}
+      disabled={disabled || isProcessing}
+      aria-busy={isProcessing}
+      className={`liquid-host flex w-full items-center justify-center gap-2.5 rounded-xl py-3.5 font-bold text-white transition-colors duration-300
+        focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea2a33]
+        disabled:cursor-not-allowed
+        ${base}
+        ${disabled && !isProcessing ? 'opacity-45' : ''}`}
+    >
       {isProcessing && (
-        <div className="mt-2 h-1 bg-slate-100 rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-gradient-to-r from-red-400 to-red-500 rounded-full"
-            initial={{ width: '0%' }}
-            animate={{ width: `${percent}%` }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-          />
-        </div>
+        <LiquidFill
+          level={percent}
+          indeterminate={!hasPercent}
+          color="rgba(255, 255, 255, 0.26)"
+        />
       )}
-    </div>
+
+      <span className="relative z-10 flex items-center gap-2.5">
+        <MaterialIcon
+          name={icon()}
+          size={19}
+          filled={isProcessing || isDownloaded}
+          className={isProcessing ? 'animate-pulse' : ''}
+        />
+
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={label()}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18 }}
+            aria-live="polite"
+            aria-atomic="true"
+            className="text-sm tabular-nums"
+          >
+            {label()}
+          </motion.span>
+        </AnimatePresence>
+      </span>
+
+      {/* Screen readers get the number even when the label has no placeholder. */}
+      {isProcessing && hasPercent && (
+        <span className="sr-only" role="status">
+          {percent}%
+        </span>
+      )}
+    </button>
   )
 }

@@ -30,7 +30,7 @@ from slowapi.errors import RateLimitExceeded
 
 from dependencies import verify_internal_api_key  # noqa: F401 — imported to trigger early validation
 from limiter import limiter
-from routers import analyze, files, jobs
+from routers import analyze, files, jobs, transcript
 from services import downloader
 from services.cleanup import CleanupService
 from services.processor import check_ffmpeg
@@ -244,9 +244,10 @@ async def health_check() -> dict:
     }
 
 
-app.include_router(analyze.router, prefix="/api", tags=["analyze"])
-app.include_router(jobs.router,    prefix="/api", tags=["jobs"])
-app.include_router(files.router,   prefix="/api", tags=["files"])
+app.include_router(analyze.router,    prefix="/api", tags=["analyze"])
+app.include_router(jobs.router,       prefix="/api", tags=["jobs"])
+app.include_router(files.router,      prefix="/api", tags=["files"])
+app.include_router(transcript.router, prefix="/api", tags=["transcript"])
 
 
 # ---------------------------------------------------------------------------

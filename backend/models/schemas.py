@@ -89,6 +89,41 @@ class AnalyzeResponse(_BaseSchema):
 
 
 # ---------------------------------------------------------------------------
+# Transcript
+# ---------------------------------------------------------------------------
+
+class TranscriptRequest(_BaseSchema):
+    video_id: str = Field(..., min_length=1, max_length=32)
+    lang:     str = Field(default="en", max_length=10)
+
+
+class TranscriptSnippet(_BaseSchema):
+    text:     str
+    start:    float = Field(..., ge=0)
+    duration: float = Field(..., ge=0)
+
+
+class TranscriptLanguageInfo(_BaseSchema):
+    code:         str
+    name:         str
+    is_generated: bool
+
+
+class TranscriptData(_BaseSchema):
+    snippets:            list[TranscriptSnippet]
+    available_languages: list[TranscriptLanguageInfo]
+    language:            str
+    language_code:       str
+    is_generated:        bool
+    video_id:            str
+
+
+class TranscriptResponse(_BaseSchema):
+    success: bool
+    data:    TranscriptData
+
+
+# ---------------------------------------------------------------------------
 # Job create
 # ---------------------------------------------------------------------------
 

@@ -4,7 +4,8 @@ import type { NextConfig } from 'next'
 const withNextIntl = createNextIntlPlugin('./i18n.ts')
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  // Note: 'output: standalone' removed — Vercel uses its own optimized output mode.
+  // Re-add for Docker/self-hosted deployments.
 
   images: {
     remotePatterns: [

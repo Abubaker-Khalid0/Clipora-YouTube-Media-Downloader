@@ -25,33 +25,14 @@ export function normalizeQuality(quality: string): string {
   return quality.replace(/p$/i, '').trim()
 }
 
-// ─── Credit Cost Calculator ───────────────────────────────────────────────────
-export type DownloadMode = 'video' | 'audio' | 'thumbnail'
-
+// ─── Job mode ─────────────────────────────────────────────────────────────────
 /**
- * Returns the number of credits required for a download job.
- * Quality param accepts EITHER format ("1080p" or "1080") — normalizeQuality()
- * is applied internally so callers never need to pre-strip the suffix.
+ * The output modes the backend accepts, mirroring `DownloadMode` in
+ * backend/models/schemas.py. Transcript is deliberately absent: it is served by
+ * /api/transcript, not the job pipeline, and sending mode:'transcript' to
+ * /api/jobs/create is rejected as an invalid mode.
  */
-export function calculateCreditCost(
-  mode: DownloadMode,
-  quality: string | null,
-  trimEnabled: boolean,
-): number {
-  let base = 0
-  if (mode === 'thumbnail') {
-    base = 0
-  } else if (mode === 'audio') {
-    base = 1
-  } else {
-    // video — normalise first so "1440p" and "1440" are treated identically
-    const nq = normalizeQuality(quality ?? '')
-    const is4K = nq === '1440' || nq === '2160'
-    base = is4K ? 2 : 1
-  }
-  // Trim adds +1 to any operation (except thumbnail which has no trim)
-  return base + (trimEnabled && mode !== 'thumbnail' ? 1 : 0)
-}
+export type JobMode = 'video' | 'audio' | 'thumbnail'
 
 // ─── File Size Formatter ──────────────────────────────────────────────────────
 export function formatFileSize(bytes: number): string {

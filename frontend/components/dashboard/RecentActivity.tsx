@@ -1,21 +1,8 @@
-'use client'
+﻿'use client'
 
 import { useTranslations } from 'next-intl'
-import {
-  History,
-  Download,
-  Trash2,
-  Clock,
-  HardDrive,
-  FileVideo,
-  Play,
-  Music,
-  ImageIcon,
-  Film,
-  Scissors,
-} from 'lucide-react'
+import { MaterialIcon } from '@/components/ui/MaterialIcon'
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase'
 import { formatFileSize, formatRelativeTime } from '@/lib/utils'
 import Image from 'next/image'
 import type { ActivityEntry } from '@/app/[locale]/dashboard/page'
@@ -23,6 +10,7 @@ import type { ActivityEntry } from '@/app/[locale]/dashboard/page'
 interface RecentActivityProps {
   entries: ActivityEntry[]
   userId: string
+  onReprocess?: (videoId: string) => void
 }
 
 /**
@@ -33,7 +21,7 @@ function getModeVisuals(mode: string | null, format: string | null) {
   // Video + Audio
   if (mode === 'video' && format === 'video_audio') {
     return {
-      Icon: Film,
+      iconName: 'movie',
       bgColor: 'bg-violet-50',
       iconColor: 'text-violet-500',
       badgeBg: 'bg-violet-50',
@@ -45,7 +33,7 @@ function getModeVisuals(mode: string | null, format: string | null) {
   // Video Only (no audio)
   if (mode === 'video' && format === 'video_only') {
     return {
-      Icon: Play,
+      iconName: 'play_arrow',
       bgColor: 'bg-blue-50',
       iconColor: 'text-blue-500',
       badgeBg: 'bg-blue-50',
@@ -57,47 +45,47 @@ function getModeVisuals(mode: string | null, format: string | null) {
   // Audio only
   if (mode === 'audio') {
     return {
-      Icon: Music,
-      bgColor: 'bg-emerald-50',
-      iconColor: 'text-emerald-500',
-      badgeBg: 'bg-emerald-50',
-      badgeText: 'text-emerald-600',
-      badgeBorder: 'border-emerald-100',
+      iconName: 'music_note',
+      bgColor: 'bg-tint-ok',
+      iconColor: 'text-tint-ok',
+      badgeBg: 'bg-tint-ok',
+      badgeText: 'text-tint-ok',
+      badgeBorder: 'border-hairline',
     }
   }
 
   // Audio Only (from trim)
   if (mode === 'video' && format === 'audio_only') {
     return {
-      Icon: Music,
-      bgColor: 'bg-emerald-50',
-      iconColor: 'text-emerald-500',
-      badgeBg: 'bg-emerald-50',
-      badgeText: 'text-emerald-600',
-      badgeBorder: 'border-emerald-100',
+      iconName: 'music_note',
+      bgColor: 'bg-tint-ok',
+      iconColor: 'text-tint-ok',
+      badgeBg: 'bg-tint-ok',
+      badgeText: 'text-tint-ok',
+      badgeBorder: 'border-hairline',
     }
   }
 
   // Thumbnail
   if (mode === 'thumbnail') {
     return {
-      Icon: ImageIcon,
-      bgColor: 'bg-amber-50',
-      iconColor: 'text-amber-500',
-      badgeBg: 'bg-amber-50',
-      badgeText: 'text-amber-600',
-      badgeBorder: 'border-amber-100',
+      iconName: 'image',
+      bgColor: 'bg-tint-warn',
+      iconColor: 'text-tint-warn',
+      badgeBg: 'bg-tint-warn',
+      badgeText: 'text-tint-warn',
+      badgeBorder: 'border-hairline',
     }
   }
 
-  // Fallback — generic video
+  // Fallback â€” generic video
   return {
-    Icon: FileVideo,
-    bgColor: 'bg-slate-50',
-    iconColor: 'text-slate-400',
-    badgeBg: 'bg-slate-50',
-    badgeText: 'text-slate-500',
-    badgeBorder: 'border-slate-100',
+    iconName: 'video_file',
+    bgColor: 'bg-panel-sunken',
+    iconColor: 'text-ink-4',
+    badgeBg: 'bg-panel-sunken',
+    badgeText: 'text-ink-3',
+    badgeBorder: 'border-hairline',
   }
 }
 
@@ -130,74 +118,51 @@ function getModeLabel(
   return t('activityDownload')
 }
 
-export function RecentActivity({ entries: initialEntries, userId }: RecentActivityProps) {
+export function RecentActivity({ entries: initialEntries, userId: _userId, onReprocess }: RecentActivityProps) {
   const t = useTranslations('dashboard')
   const [entries, setEntries] = useState<ActivityEntry[]>(initialEntries)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const handleDelete = async (id: string) => {
     setDeletingId(id)
-    try {
-      const supabase = createClient()
-
-      // Filter by both id AND user_id — defense-in-depth against misconfigured RLS.
-      // Without user_id, a client with a known job UUID could delete any row
-      // if RLS policies are ever weakened or misconfigured.
-      const { error } = await supabase
-        .from('jobs')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', userId)
-
-      if (error) {
-        console.error('[RecentActivity:handleDelete] failed:', error)
-        return
-      }
-
-      setEntries((prev) => prev.filter((entry) => entry.id !== id))
-    } catch (err) {
-      console.error('[RecentActivity:handleDelete] unexpected error:', err)
-    } finally {
-      setDeletingId(null)
-    }
+    // No DB â€” just remove from local state
+    setEntries((prev) => prev.filter((entry) => entry.id !== id))
+    setDeletingId(null)
   }
 
   const handleDownload = (id: string) => {
-    window.location.href = `/api/files/download/${id}`
+    window.location.assign(`/api/files/download/${id}`)
   }
 
   if (entries.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm ring-1 ring-slate-50 p-6">
-        <div className="flex items-center gap-2.5 mb-5">
-          <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
-            <History className="w-4 h-4 text-slate-300" />
+      <div className="bg-panel rounded-2xl border border-hairline shadow-sm ring-1 ring-hairline px-6 py-5">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--panel-sunken)] to-[var(--veil-2)] flex items-center justify-center flex-shrink-0">
+            <MaterialIcon name="download" size={18} className="text-ink-4" />
           </div>
-          <h2 className="text-base font-bold text-slate-800">
-            {t('recentActivity')}
-          </h2>
-        </div>
-        <div className="flex flex-col items-center justify-center py-16 border border-slate-100 rounded-xl bg-slate-50/30">
-          <div className="w-14 h-14 rounded-2xl bg-white border border-slate-100 flex items-center justify-center mb-4 shadow-sm">
-            <History className="w-6 h-6 text-slate-200" />
+          <div className="flex-1 min-w-0">
+            <h2 className="text-sm font-bold text-ink-2">{t('noActivity')}</h2>
+            <p className="text-xs text-ink-4 mt-0.5">{t('noActivitySub')}</p>
           </div>
-          <p className="text-slate-500 font-semibold text-sm">{t('noActivity')}</p>
-          <p className="text-slate-300 text-xs mt-1.5">{t('noActivitySub')}</p>
+          <span className="hidden sm:inline-flex text-[11px] font-medium text-ink-4 bg-panel-sunken px-3 py-1.5 rounded-lg flex-shrink-0">
+            {t('noActivityCta')}
+          </span>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm ring-1 ring-slate-50 p-6">
+    <div className="bg-panel rounded-2xl border border-hairline shadow-sm ring-1 ring-hairline p-6">
       <div className="flex items-center gap-2.5 mb-5">
-        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
-          <History className="w-4 h-4 text-slate-400" />
+        <div className="w-8 h-8 rounded-lg bg-panel-sunken flex items-center justify-center">
+          <MaterialIcon name="history" size={16} className="text-ink-4" />
         </div>
-        <h2 className="text-base font-bold text-slate-800">
+        <h2 className="text-base font-bold text-ink">
           {t('recentActivity')}
         </h2>
-        <span className="text-xs font-medium text-slate-300 ml-auto">
+        <span className="text-xs font-medium text-ink-4 ml-auto">
           {entries.length} {entries.length === 1 ? 'item' : 'items'}
         </span>
       </div>
@@ -206,17 +171,17 @@ export function RecentActivity({ entries: initialEntries, userId }: RecentActivi
         {entries.map((entry) => {
           const visuals = getModeVisuals(entry.mode, entry.format)
           const modeLabel = getModeLabel(entry.mode, entry.format, t)
-          const { Icon } = visuals
+          const { iconName } = visuals
 
           return (
             <div
               key={entry.id}
-              className="flex items-center gap-4 p-3.5 rounded-xl hover:bg-slate-50/80 transition-all duration-200 group"
+              className="flex items-center gap-4 p-3.5 rounded-xl hover:bg-veil transition-all duration-200 group"
             >
               {/* Thumbnail with mode icon overlay */}
               <div className="relative flex-shrink-0">
                 {entry.thumbnailUrl ? (
-                  <div className="relative w-16 h-11 rounded-lg overflow-hidden ring-1 ring-slate-200/50 shadow-sm">
+                  <div className="relative w-16 h-11 rounded-lg overflow-hidden ring-1 ring-hairline shadow-sm">
                     <Image
                       src={entry.thumbnailUrl}
                       alt={entry.videoTitle || t('emptyVideoHint')}
@@ -226,41 +191,41 @@ export function RecentActivity({ entries: initialEntries, userId }: RecentActivi
                     />
                     {/* Mode icon badge - overlayed on thumbnail */}
                     <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-md ${visuals.bgColor} border ${visuals.badgeBorder} flex items-center justify-center shadow-sm`}>
-                      <Icon className={`w-2.5 h-2.5 ${visuals.iconColor}`} />
+                      <MaterialIcon name={iconName} size={10} className={visuals.iconColor} />
                     </div>
                   </div>
                 ) : (
                   <div className={`w-16 h-11 rounded-lg ${visuals.bgColor} flex-shrink-0 flex items-center justify-center relative`}>
-                    <Icon className={`w-5 h-5 ${visuals.iconColor}`} />
+                    <MaterialIcon name={iconName} size={20} className={visuals.iconColor} />
                   </div>
                 )}
               </div>
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-slate-800 text-sm truncate leading-snug">
+                <h3 className="font-semibold text-ink text-sm truncate leading-snug">
                   {entry.videoTitle || modeLabel}
                 </h3>
                 <div className="flex items-center gap-3 mt-1.5">
                   {/* Mode badge */}
                   <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${visuals.badgeText} ${visuals.badgeBg} border ${visuals.badgeBorder} px-1.5 py-0.5 rounded-md`}>
-                    <Icon className="w-3 h-3" />
+                    <MaterialIcon name={iconName} size={12} />
                     {modeLabel}
                   </span>
                   {entry.fileSizeBytes && (
-                    <span className="flex items-center gap-1 text-[11px] text-slate-400">
-                      <HardDrive className="w-3 h-3" />
+                    <span className="flex items-center gap-1 text-[11px] text-ink-4">
+                      <MaterialIcon name="hard_drive" size={12} />
                       {formatFileSize(entry.fileSizeBytes)}
                     </span>
                   )}
                   {entry.format && entry.mode === 'video' && entry.format.includes('trim') && (
                     <span className="flex items-center gap-1 text-[11px] text-orange-400">
-                      <Scissors className="w-3 h-3" />
+                      <MaterialIcon name="content_cut" size={12} />
                       Trimmed
                     </span>
                   )}
-                  <span className="flex items-center gap-1 text-[11px] text-slate-300">
-                    <Clock className="w-3 h-3" />
+                  <span className="flex items-center gap-1 text-[11px] text-ink-4">
+                    <MaterialIcon name="schedule" size={12} />
                     {formatRelativeTime(entry.createdAt)}
                   </span>
                 </div>
@@ -268,16 +233,27 @@ export function RecentActivity({ entries: initialEntries, userId }: RecentActivi
 
               {/* Actions */}
               <div className="flex items-center gap-1 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity duration-200">
+                {/* Re-edit button â€” loads the video back into the editor */}
+                {entry.videoId && entry.videoId !== 'pending' && entry.videoId !== 'unknown' && onReprocess && (
+                  <button
+                    onClick={() => onReprocess(entry.videoId!)}
+                    className="w-8 h-8 flex items-center justify-center text-ink-4 hover:text-violet-500 hover:bg-violet-50 rounded-lg transition-all duration-150"
+                    title={t('reEdit')}
+                  >
+                    <MaterialIcon name="edit" size={14} />
+                  </button>
+                )}
+
                 {!entry.isExpired ? (
                   <button
                     onClick={() => handleDownload(entry.id)}
-                    className="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-150"
+                    className="w-8 h-8 flex items-center justify-center text-red-400 hover:text-brand hover:bg-brand-tint rounded-lg transition-all duration-150"
                     title={t('download')}
                   >
-                    <Download className="w-4 h-4" />
+                    <MaterialIcon name="download" size={16} />
                   </button>
                 ) : (
-                  <span className="text-[10px] font-medium text-slate-300 bg-slate-50 px-2 py-1 rounded-md">
+                  <span className="text-[10px] font-medium text-ink-4 bg-panel-sunken px-2 py-1 rounded-md">
                     {t('fileExpired')}
                   </span>
                 )}
@@ -285,10 +261,10 @@ export function RecentActivity({ entries: initialEntries, userId }: RecentActivi
                 <button
                   onClick={() => handleDelete(entry.id)}
                   disabled={deletingId === entry.id}
-                  className="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-red-400 hover:bg-red-50/50 rounded-lg transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-8 h-8 flex items-center justify-center text-ink-4 hover:text-red-400 hover:bg-brand-tint rounded-lg transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
                   title={t('delete')}
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <MaterialIcon name="delete" size={14} />
                 </button>
               </div>
             </div>

@@ -1,19 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireSession } from '@/lib/auth-guard'
 import { proxyFetch, sanitizeBackendError } from '@/lib/backend'
 
 /**
- * T009 — GET /api/jobs/[id]
- * Proxies job status fetch from FastAPI backend.
+ * GET /api/jobs/[id]
+ * Proxies job status fetch from FastAPI backend. No auth required.
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authResult = await requireSession()
-    if (authResult instanceof NextResponse) return authResult
-
     const { id } = await params
 
     let response: Response
@@ -27,9 +23,6 @@ export async function GET(
       )
     }
 
-    // Unwrap the backend's { success, data } envelope — do NOT re-wrap.
-    // The backend returns { success: true, data: { id, status, stage, … } }.
-    // Forwarding the whole object as `data` would produce a double-nested shape.
     const envelope = (await response.json()) as {
       success: boolean
       data: Record<string, unknown>

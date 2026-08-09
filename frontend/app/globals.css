@@ -238,3 +238,551 @@
     --tw-shadow-color: color-mix(in srgb, var(--color-clipora-primary) 25%, transparent);
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Clipora Landing — Premium Visual System
+   Dark canvas + brand-red aurora. Scoped to .landing-root so the light-themed
+   dashboard and legal pages are untouched.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes clipora-aurora {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(4%, -3%, 0) scale(1.18);
+    opacity: 0.85;
+  }
+}
+
+@keyframes clipora-aurora-alt {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translate3d(-5%, 4%, 0) scale(1);
+    opacity: 0.7;
+  }
+}
+
+@keyframes clipora-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes clipora-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes clipora-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Liquid surface. The crest is a repeating SVG wave used as a mask, so its
+   colour comes from a token and the shape stays identical at any button width.
+   The layer is 200% wide with a repeating tile, so translating it by exactly
+   -50% loops seamlessly. Only `transform` animates — no reflow, no repaint of
+   the parent. */
+@keyframes clipora-wave-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Indeterminate mode: the level breathes up and down instead of tracking a
+   percentage, used while a duration is genuinely unknown. */
+@keyframes clipora-liquid-tide {
+  0%,
+  100% {
+    height: 34%;
+  }
+  50% {
+    height: 72%;
+  }
+}
+
+@keyframes clipora-pulse-ring {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@layer utilities {
+  /* ── Canvas & semantic tokens ─────────────────────────────────────────────
+     The landing components address colour through these tokens instead of
+     literal `text-white/50`-style utilities, because an opacity-on-white value
+     cannot be redirected by a variable and turns invisible on a light canvas.
+     Light is the default here; the .dark block below re-points the same tokens.
+
+     Text ramp:  ink (headings) → ink-2 (body) → ink-3 (secondary) → ink-4 (meta)
+     Fills:      veil (subtle) → veil-2 (raised) → veil-3 (active)
+     Lines:      hairline → hairline-strong
+     ─────────────────────────────────────────────────────────────────────── */
+  :root {
+    --ink-bg: #ffffff;
+    --ink-bg-soft: #f6f6f8;
+
+    --ink: #0b0b0f;
+    --ink-2: rgba(15, 17, 26, 0.78);
+    --ink-3: rgba(15, 17, 26, 0.6);
+    --ink-4: rgba(15, 17, 26, 0.45);
+
+    --veil: rgba(11, 11, 16, 0.035);
+    --veil-2: rgba(11, 11, 16, 0.055);
+    --veil-3: rgba(11, 11, 16, 0.085);
+
+    --hairline: rgba(11, 11, 16, 0.1);
+    --hairline-strong: rgba(11, 11, 16, 0.18);
+
+    /* Decorative layers are toned down on a light canvas: at dark-mode strength
+       the aurora reads as muddy smudges rather than light sources. */
+    --aurora-brand: rgba(234, 42, 51, 0.3);
+    --aurora-ember: rgba(255, 122, 69, 0.2);
+    --aurora-violet: rgba(120, 80, 255, 0.14);
+    --grid-line: rgba(11, 11, 16, 0.055);
+    --noise-opacity: 0.02;
+    --edge-highlight: rgba(11, 11, 16, 0.14);
+
+    --surface-from: rgba(255, 255, 255, 0.9);
+    --surface-to: rgba(255, 255, 255, 0.65);
+    --surface-solid-from: #ffffff;
+    --surface-solid-to: #f7f7f9;
+    --surface-hover-fill: rgba(11, 11, 16, 0.02);
+
+    --heading-from: #0b0b0f;
+    --heading-to: rgba(11, 11, 16, 0.62);
+
+    --brand: #ea2a33;
+
+    /* Card fill for opaque panels (dashboard). Distinct from --surface-* which
+       is a translucent glass gradient. */
+    --panel: #ffffff;
+    --panel-raised: #ffffff;
+    --panel-sunken: #f4f4f7;
+
+    /* Brand + status tints. A raw `bg-red-50` is invisible on a dark canvas, so
+       every tinted state resolves through a token instead. */
+    --brand-tint: rgba(234, 42, 51, 0.07);
+    --brand-tint-strong: rgba(234, 42, 51, 0.12);
+    --brand-text: #cf1f28;
+    --tint-warn: rgba(245, 158, 11, 0.1);
+    --text-warn: #b45309;
+    --tint-ok: rgba(16, 185, 129, 0.1);
+    --text-ok: #047857;
+    --tint-err: rgba(239, 68, 68, 0.09);
+    --text-err: #cf1f28;
+
+    --shadow-panel: 0 1px 2px rgba(11, 11, 16, 0.04), 0 8px 24px -12px rgba(11, 11, 16, 0.1);
+    /* Shadow *colour* only, so components keep their own shadow-lg/-md sizing.
+       A slate-200 shadow turns milky on a dark canvas. */
+    --shadow-tint: rgba(15, 23, 42, 0.1);
+  }
+
+  .dark {
+    --ink-bg: #08080a;
+    --ink-bg-soft: #0e0e12;
+
+    --ink: #ffffff;
+    --ink-2: rgba(255, 255, 255, 0.75);
+    --ink-3: rgba(255, 255, 255, 0.55);
+    --ink-4: rgba(255, 255, 255, 0.38);
+
+    --veil: rgba(255, 255, 255, 0.03);
+    --veil-2: rgba(255, 255, 255, 0.055);
+    --veil-3: rgba(255, 255, 255, 0.1);
+
+    --hairline: rgba(255, 255, 255, 0.08);
+    --hairline-strong: rgba(255, 255, 255, 0.14);
+
+    --aurora-brand: rgba(234, 42, 51, 0.55);
+    --aurora-ember: rgba(255, 122, 69, 0.32);
+    --aurora-violet: rgba(120, 80, 255, 0.22);
+    --grid-line: rgba(255, 255, 255, 0.045);
+    --noise-opacity: 0.035;
+    --edge-highlight: rgba(255, 255, 255, 0.5);
+
+    --surface-from: rgba(255, 255, 255, 0.055);
+    --surface-to: rgba(255, 255, 255, 0.02);
+    --surface-solid-from: #131317;
+    --surface-solid-to: #0c0c10;
+    --surface-hover-fill: rgba(255, 255, 255, 0.03);
+
+    --heading-from: #ffffff;
+    --heading-to: rgba(255, 255, 255, 0.62);
+
+    --panel: #101014;
+    --panel-raised: #16161c;
+    --panel-sunken: #0b0b0f;
+
+    --brand-tint: rgba(234, 42, 51, 0.14);
+    --brand-tint-strong: rgba(234, 42, 51, 0.22);
+    --brand-text: #ff8f8f;
+    --tint-warn: rgba(245, 158, 11, 0.14);
+    --text-warn: #fcd34d;
+    --tint-ok: rgba(16, 185, 129, 0.14);
+    --text-ok: #6ee7b7;
+    --tint-err: rgba(239, 68, 68, 0.16);
+    --text-err: #ff9d9d;
+
+    --shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.5), 0 18px 48px -20px rgba(0, 0, 0, 0.8);
+    --shadow-tint: rgba(0, 0, 0, 0.65);
+  }
+
+  /* Painted canvases. Tokens live on :root/.dark so any surface can use them. */
+  .landing-root,
+  .app-root {
+    background-color: var(--ink-bg);
+    color: var(--ink-2);
+  }
+
+  /* ── Token-backed utilities ───────────────────────────────────────────── */
+  .text-ink {
+    color: var(--ink);
+  }
+  .text-ink-2 {
+    color: var(--ink-2);
+  }
+  .text-ink-3 {
+    color: var(--ink-3);
+  }
+  .text-ink-4 {
+    color: var(--ink-4);
+  }
+  .bg-veil {
+    background-color: var(--veil);
+  }
+  .bg-veil-2 {
+    background-color: var(--veil-2);
+  }
+  .bg-veil-3 {
+    background-color: var(--veil-3);
+  }
+  .bg-canvas {
+    background-color: var(--ink-bg);
+  }
+  /* Inverted pair — a high-contrast button that flips with the theme. */
+  .bg-ink {
+    background-color: var(--ink);
+  }
+  .text-canvas {
+    color: var(--ink-bg);
+  }
+  .bg-canvas-soft {
+    background-color: var(--ink-bg-soft);
+  }
+  .border-hairline {
+    border-color: var(--hairline);
+  }
+  .border-hairline-strong {
+    border-color: var(--hairline-strong);
+  }
+  .ring-hairline {
+    --tw-ring-color: var(--hairline);
+  }
+  /* Fades a section into the canvas colour regardless of theme. */
+  .fade-to-canvas {
+    background-image: linear-gradient(to bottom, transparent, var(--ink-bg));
+  }
+
+  /* ── Dashboard panels ─────────────────────────────────────────────────── */
+  .bg-panel {
+    background-color: var(--panel);
+  }
+  .bg-panel-raised {
+    background-color: var(--panel-raised);
+  }
+  .bg-panel-sunken {
+    background-color: var(--panel-sunken);
+  }
+  /* The standard dashboard card: opaque fill, hairline, theme-aware shadow. */
+  .panel {
+    background-color: var(--panel);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-panel);
+  }
+  .shadow-panel {
+    box-shadow: var(--shadow-panel);
+  }
+
+  /* ── Brand + status tints ─────────────────────────────────────────────── */
+  .bg-brand-tint {
+    background-color: var(--brand-tint);
+  }
+  .bg-brand-tint-strong {
+    background-color: var(--brand-tint-strong);
+  }
+  .text-brand {
+    color: var(--brand-text);
+  }
+  .border-brand-tint {
+    border-color: var(--brand-tint-strong);
+  }
+  .bg-tint-warn {
+    background-color: var(--tint-warn);
+  }
+  .text-tint-warn {
+    color: var(--text-warn);
+  }
+  .bg-tint-ok {
+    background-color: var(--tint-ok);
+  }
+  .text-tint-ok {
+    color: var(--text-ok);
+  }
+  .bg-tint-err {
+    background-color: var(--tint-err);
+  }
+  .text-tint-err {
+    color: var(--text-err);
+  }
+
+  /* ── Liquid progress ─────────────────────────────────────────────────────
+     Usage: a positioned, overflow-hidden host sets --level (0–100). The fill
+     rises to that level and two wave blobs ripple at the surface.
+     ─────────────────────────────────────────────────────────────────────── */
+  .liquid-host {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .liquid-fill {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: calc(var(--level, 0) * 1%);
+    background-color: var(--liquid, rgba(255, 255, 255, 0.28));
+    /* Eases toward each new percent so stepped server updates read as a flow. */
+    transition: height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: height;
+  }
+  .liquid-fill--tide {
+    animation: clipora-liquid-tide 2.6s ease-in-out infinite;
+    transition: none;
+  }
+  /* Crest tile: a wave whose trough is at the top, body solid below, so it
+     seams flush onto the fill it sits on. */
+  .liquid-wave {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 200%;
+    height: 9px;
+    /* Overlap the fill by 1px so no hairline gap shows at the seam. */
+    margin-top: -8px;
+    background-color: var(--liquid, rgba(255, 255, 255, 0.28));
+    pointer-events: none;
+    mask-repeat: repeat-x;
+    -webkit-mask-repeat: repeat-x;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 12' preserveAspectRatio='none'%3E%3Cpath d='M0 6C15 0 45 0 60 6s45 6 60 0v6H0Z' fill='%23000'/%3E%3C/svg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 12' preserveAspectRatio='none'%3E%3Cpath d='M0 6C15 0 45 0 60 6s45 6 60 0v6H0Z' fill='%23000'/%3E%3C/svg%3E");
+  }
+  .liquid-wave--a {
+    mask-size: 90px 100%;
+    -webkit-mask-size: 90px 100%;
+    opacity: 0.9;
+    animation: clipora-wave-drift 2.8s linear infinite;
+  }
+  /* Second crest: different tile width and direction, so the two never lock
+     into a repeating pattern and the surface reads as real motion. */
+  .liquid-wave--b {
+    mask-size: 140px 100%;
+    -webkit-mask-size: 140px 100%;
+    opacity: 0.45;
+    animation: clipora-wave-drift 4.6s linear infinite reverse;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .liquid-wave--a,
+    .liquid-wave--b,
+    .liquid-fill--tide {
+      animation: none !important;
+    }
+    .liquid-fill {
+      transition: none;
+    }
+  }
+
+  /* Section eyebrow shared by dashboard blocks. */
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+  }
+
+  /* Blurred brand-red light source. Purely decorative. */
+  .aurora-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(90px);
+    will-change: transform, opacity;
+    pointer-events: none;
+  }
+  .aurora-blob--brand {
+    background: radial-gradient(circle, var(--aurora-brand) 0%, rgba(234, 42, 51, 0) 70%);
+    animation: clipora-aurora 14s ease-in-out infinite;
+  }
+  .aurora-blob--ember {
+    background: radial-gradient(circle, var(--aurora-ember) 0%, rgba(255, 122, 69, 0) 70%);
+    animation: clipora-aurora-alt 18s ease-in-out infinite;
+  }
+  .aurora-blob--violet {
+    background: radial-gradient(circle, var(--aurora-violet) 0%, rgba(120, 80, 255, 0) 70%);
+    animation: clipora-aurora-alt 22s ease-in-out infinite reverse;
+  }
+
+  /* Fine engineering grid, fades out toward the edges. */
+  .grid-lines {
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 30%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 30%, transparent 100%);
+  }
+
+  /* Subtle film grain — kills the flat "AI gradient" look. */
+  .noise-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: var(--noise-opacity, 0.035);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ── Surfaces ─────────────────────────────────────────────────────────── */
+  .surface {
+    background: linear-gradient(180deg, var(--surface-from) 0%, var(--surface-to) 100%);
+    border: 1px solid var(--hairline);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .surface-solid {
+    background: linear-gradient(180deg, var(--surface-solid-from) 0%, var(--surface-solid-to) 100%);
+    border: 1px solid var(--hairline);
+  }
+
+  /* Gradient hairline that brightens on hover — used on feature cards. */
+  .surface-hover {
+    transition: border-color 0.35s ease, background-color 0.35s ease, transform 0.35s ease;
+  }
+  .surface-hover:hover {
+    border-color: var(--hairline-strong);
+    background-color: var(--surface-hover-fill);
+  }
+
+  /* Glowing top edge highlight. */
+  .edge-light {
+    position: relative;
+  }
+  .edge-light::before {
+    content: '';
+    position: absolute;
+    inset-inline: 15%;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--edge-highlight), transparent);
+  }
+
+  /* ── Type ─────────────────────────────────────────────────────────────── */
+  /* Named "light" for the light-on-dark original; now follows the heading
+     tokens so the same class reads correctly on either canvas. */
+  .text-gradient-light {
+    background: linear-gradient(180deg, var(--heading-from) 20%, var(--heading-to) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-gradient-brand {
+    background: linear-gradient(120deg, #ff6a3d 0%, #ea2a33 45%, #ff4d6d 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0.95) 50%,
+      rgba(255, 255, 255, 0.4) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: clipora-shimmer 6s linear infinite;
+  }
+
+  /* ── Effects ──────────────────────────────────────────────────────────── */
+  .glow-brand {
+    box-shadow: 0 10px 40px -10px rgba(234, 42, 51, 0.55), 0 0 0 1px rgba(234, 42, 51, 0.2);
+  }
+  .glow-brand-lg {
+    box-shadow: 0 24px 80px -20px rgba(234, 42, 51, 0.6);
+  }
+  .float-slow {
+    animation: clipora-float 7s ease-in-out infinite;
+  }
+  .pulse-ring {
+    animation: clipora-pulse-ring 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  }
+
+  /* ── Marquee ──────────────────────────────────────────────────────────── */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: clipora-marquee 34s linear infinite;
+  }
+  .marquee-mask {
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+
+  /* Arabic gets Cairo — Manrope has no Arabic coverage. */
+  [dir='rtl'] .font-display,
+  [dir='rtl'] .landing-root {
+    font-family: 'Cairo', 'Manrope', sans-serif;
+  }
+
+  /* Respect the OS "reduce motion" setting across the whole landing page. */
+  @media (prefers-reduced-motion: reduce) {
+    .aurora-blob--brand,
+    .aurora-blob--ember,
+    .aurora-blob--violet,
+    .marquee-track,
+    .text-shimmer,
+    .float-slow,
+    .pulse-ring {
+      animation: none !important;
+    }
+  }
+}

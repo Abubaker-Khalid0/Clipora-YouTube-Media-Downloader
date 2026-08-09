@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireSession } from '@/lib/auth-guard'
-import { getCreditCost, checkCredits } from '@/lib/credits'
 import { proxyFetch, sanitizeBackendError } from '@/lib/backend'
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rateLimiter'
 
@@ -57,27 +55,14 @@ function badRequest(error: string) {
 // ---------------------------------------------------------------------------
 // POST /api/jobs/create
 //
-// Flow:
-//   1. Auth + rate limit
-//   2. Parse + validate body
-//   3. Check credit balance (return 402 if insufficient)
-//   4. Insert job row in Supabase (status = 'processing')
-//   5. Forward to FastAPI backend (roll back DB row on failure)
-//   6. Return 201 { success, data: { jobId } }
-//
-// Credits are deducted on SSE 'complete' — not here.
+// No auth or credits — just validate and forward to backend.
 // ---------------------------------------------------------------------------
 
 export async function POST(request: NextRequest) {
-  // ── 1. Auth ────────────────────────────────────────────────────────────────
-  const authResult = await requireSession()
-  if (authResult instanceof NextResponse) return authResult
-  const { user, supabase } = authResult
-
   const rateLimit = checkRateLimit(request, RATE_LIMITS.JOB_CREATE)
   if (!rateLimit.success) return rateLimitResponse(rateLimit.retryAfter)
 
-  // ── 2. Parse + validate ────────────────────────────────────────────────────
+  // ── Parse + validate ────────────────────────────────────────────────────
   let body: CreateJobBody
   try {
     body = (await request.json()) as CreateJobBody
@@ -111,7 +96,6 @@ export async function POST(request: NextRequest) {
     return badRequest('Trim is only supported for video mode')
   }
 
-  // audio_only output type requires trim
   if (body.videoType === 'audio_only' && !body.trimEnabled) {
     return badRequest('audio_only output type requires trim to be enabled')
   }
@@ -130,74 +114,26 @@ export async function POST(request: NextRequest) {
   const quality = normalizeQuality(body.quality, body.mode)
   const trimEnabled = body.trimEnabled ?? false
 
-  // ── 3. Credit check ────────────────────────────────────────────────────────
-  const requiredCredits = getCreditCost(body.mode, quality, trimEnabled)
-  const { sufficient } = await checkCredits(supabase, user.id, requiredCredits)
-  if (!sufficient) {
-    return NextResponse.json(
-      { success: false, data: null, error: 'Insufficient credits' },
-      { status: 402 }
-    )
-  }
-
-  // ── 4. Insert Supabase job row ─────────────────────────────────────────────
+  // ── Forward to FastAPI backend ──────────────────────────────────────────
   const jobId = body.jobId ?? crypto.randomUUID()
 
-  // Derive a human-readable format label for the activity feed
-  let formatLabel: string | null = null
-  if (body.mode === 'video') {
-    const vt = body.videoType ?? 'video_audio'
-    formatLabel = vt // 'video_audio' | 'video_only' | 'audio_only'
-  } else if (body.mode === 'audio') {
-    formatLabel = 'audio'
-  } else if (body.mode === 'thumbnail') {
-    formatLabel = body.thumbnailFormat ?? 'jpg'
-  }
-
-  const { error: dbInsertError } = await supabase.from('jobs').insert({
-    id: jobId,
-    user_id: user.id,
-    video_id: 'pending',
-    video_title: body.videoTitle ?? null,
-    thumbnail_url: body.thumbnailUrl ?? null,
-    mode: body.mode,
-    quality,
-    format: formatLabel,
-    status: 'processing',
-    credits_used: requiredCredits,
-    trim_enabled: trimEnabled,
-    trim_start: trimEnabled ? secondsToTimecode(body.trimStart) : null,
-    trim_end: trimEnabled ? secondsToTimecode(body.trimEnd) : null,
-  })
-
-  if (dbInsertError) {
-    return NextResponse.json(
-      { success: false, data: null, error: 'Failed to record job. Please try again.' },
-      { status: 500 }
-    )
-  }
-
-  // ── 5. Forward to FastAPI backend ──────────────────────────────────────────
   try {
     const backendPayload: Record<string, unknown> = {
       job_id: jobId,
       url: body.url,
       mode: body.mode,
-      user_id: user.id,
+      user_id: '00000000-0000-0000-0000-000000000001',
       quality,
     }
 
-    // video_type is only sent for video mode
     if (body.mode === 'video') {
       backendPayload.video_type = body.videoType ?? 'video_audio'
     }
 
-    // thumbnail_format is only sent for thumbnail mode
     if (body.mode === 'thumbnail') {
       backendPayload.thumbnail_format = body.thumbnailFormat ?? 'jpg'
     }
 
-    // trim fields are only sent when trim is enabled
     if (trimEnabled) {
       backendPayload.trim_enabled = true
       backendPayload.trim_start = secondsToTimecode(body.trimStart)
@@ -212,8 +148,6 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(backendPayload),
     })
   } catch (err) {
-    await supabase.from('jobs').delete().eq('id', jobId)
-
     console.error('[API Proxy] POST /api/jobs/create failed', {
       jobId,
       error: err instanceof Error ? err.message : String(err),
@@ -227,7 +161,6 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // ── 6. Respond ─────────────────────────────────────────────────────────────
   return NextResponse.json(
     { success: true, data: { jobId }, error: null },
     { status: 201 }
