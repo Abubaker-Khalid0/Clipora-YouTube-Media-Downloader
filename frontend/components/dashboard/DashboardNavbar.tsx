@@ -7,6 +7,7 @@ import { Link } from '@/lib/navigation'
 import { MaterialIcon } from '@/components/ui/MaterialIcon'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { QueueButton } from './QueueButton'
 
 /**
  * DashboardNavbar — app header.
@@ -62,6 +63,8 @@ export function DashboardNavbar() {
             <MaterialIcon name="home" size={16} />
             {t('navHome')}
           </Link>
+
+          <QueueButton />
 
           <span aria-hidden="true" className="mx-1 hidden h-5 w-px bg-veil-3 sm:block" />
 

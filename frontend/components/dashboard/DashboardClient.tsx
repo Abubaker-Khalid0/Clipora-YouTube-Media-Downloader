@@ -13,12 +13,11 @@ import { ProcessingButton } from './ProcessingButton'
 import { TrimTimeline } from './TrimTimeline'
 import { TranscriptPanel } from './TranscriptPanel'
 import { RecentActivity } from './RecentActivity'
-import { QueuePanel } from './QueuePanel'
 import { OutputPicker, type OutputKind } from './OutputPicker'
 import { ComingSoonPanel } from './ComingSoonPanel'
 import type { ActivityEntry } from '@/app/[locale]/dashboard/page'
 import { useJobStream } from '@/hooks/useJobStream'
-import { useDownloadQueue } from '@/hooks/useDownloadQueue'
+import { useQueue } from './QueueProvider'
 import type { JobMode } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
 import { MaterialIcon } from '@/components/ui/MaterialIcon'
@@ -172,16 +171,15 @@ export function DashboardClient({
   // fetch handler and the overlay wiring are gone rather than left dangling.
 
   // ── Download Queue ────────────────────────────────────────────────────────
-  const {
-    queue,
-    isProcessing: isQueueProcessing,
-    addToQueue,
-    removeFromQueue,
-    clearQueue,
-    startQueue,
-    downloadFile: downloadQueueFile,
-    downloadAllReady,
-  } = useDownloadQueue()
+  // Owned by QueueProvider on the dashboard shell; the list itself is rendered by
+  // QueueDrawer and opened from the navbar. This component only feeds it.
+  const { isProcessing: isQueueProcessing, addToQueue } = useQueue()
+
+  // Confirms an add at the button, for the ~1.8s it takes the eye to travel to
+  // the navbar counter. Also blocks a second click, since the workspace now stays
+  // loaded and a double press would queue the same job twice.
+  const [justQueued, setJustQueued] = useState(false)
+  const queuedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -322,6 +320,13 @@ export function DashboardClient({
     setLoopTrim(false)
     setIncludeTrimTranscript(false)
   }, [output])
+
+  // Drop the "added to queue" timer if the component goes away first.
+  useEffect(() => {
+    return () => {
+      if (queuedTimerRef.current) clearTimeout(queuedTimerRef.current)
+    }
+  }, [])
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -493,8 +498,15 @@ export function DashboardClient({
       trimEnd: trimEnabled ? trimEnd : null,
       thumbnailFormat,
     })
-    // Reset state so user can add another video
-    resetAllState()
+
+    // The workspace deliberately stays as it is. This used to call
+    // resetAllState(), which threw away the analyzed video and every setting the
+    // user had just chosen, silently, from a button on the opposite side of the
+    // screen from the list it fed. Pasting a new link in the URL bar is the
+    // explicit way to move on; a stray click no longer costs any work.
+    setJustQueued(true)
+    if (queuedTimerRef.current) clearTimeout(queuedTimerRef.current)
+    queuedTimerRef.current = setTimeout(() => setJustQueued(false), 1800)
   }
 
   // ── Transcript handler ────────────────────────────────────────────────────
@@ -600,7 +612,6 @@ export function DashboardClient({
 
   // ── Render ────────────────────────────────────────────────────────────────
 
-  const hasQueue = queue.length > 0
   const hasActivity = activityEntries.length > 0
 
   return (
@@ -780,25 +791,40 @@ export function DashboardClient({
                       disabled={!!activeJobId}
                     />
 
-                    <ProcessingButton
-                      stage={buttonState}
-                      percent={percent}
-                      onClick={handleButtonClick}
-                      disabled={buttonState !== 'idle' && buttonState !== 'ready'}
-                    />
+                    {/* One row, with the primary action taking all remaining
+                        width. items-stretch lets the queue button match the
+                        primary's height without hard-coding one. Queueing is a
+                        secondary action, so it is a compact icon button: at the
+                        rail's ~380px there is not enough room for two labelled
+                        buttons side by side without one of them wrapping. */}
+                    <div className="flex items-stretch gap-2">
+                      <div className="min-w-0 flex-1">
+                        <ProcessingButton
+                          stage={buttonState}
+                          percent={percent}
+                          onClick={handleButtonClick}
+                          disabled={buttonState !== 'idle' && buttonState !== 'ready'}
+                        />
+                      </div>
 
-                    {buttonState === 'idle' && (
-                      <button
-                        onClick={handleAddToQueue}
-                        disabled={isQueueProcessing}
-                        className="flex w-full items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-hairline py-3 text-sm font-semibold text-ink-3 transition-all duration-200
-                                   hover:border-brand-tint hover:bg-brand-tint hover:text-brand
-                                   active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <MaterialIcon name="add" size={16} />
-                        {t('addToQueue')}
-                      </button>
-                    )}
+                      {buttonState === 'idle' && (
+                        <button
+                          onClick={handleAddToQueue}
+                          disabled={isQueueProcessing || justQueued}
+                          aria-label={justQueued ? t('queueAdded') : t('addToQueue')}
+                          title={justQueued ? t('queueAdded') : t('addToQueue')}
+                          className={`flex w-12 flex-shrink-0 items-center justify-center rounded-xl border-2 border-dashed transition-all duration-200
+                                      active:scale-95 disabled:cursor-not-allowed
+                                      ${
+                                        justQueued
+                                          ? 'border-solid border-brand-tint bg-brand-tint text-brand'
+                                          : 'border-hairline text-ink-3 hover:border-brand-tint hover:bg-brand-tint hover:text-brand disabled:opacity-50'
+                                      }`}
+                        >
+                          <MaterialIcon name={justQueued ? 'check' : 'playlist_add'} size={19} />
+                        </button>
+                      )}
+                    </div>
                   </>
                 )}
               </motion.div>
@@ -808,36 +834,22 @@ export function DashboardClient({
         </div>
       )}
 
-      {/* ── Secondary blocks ───────────────────────────────────────────────
-          Rendered only when they hold something. Both used to mount
-          unconditionally, so an untouched dashboard showed two empty cards
-          stacked under the fold. */}
-      {(hasQueue || hasActivity) && (
-        <div className="space-y-8 border-t border-hairline pt-8">
-          {hasQueue && (
-            <QueuePanel
-              queue={queue}
-              isProcessing={isQueueProcessing}
-              onStart={startQueue}
-              onRemove={removeFromQueue}
-              onClear={clearQueue}
-              onDownload={downloadQueueFile}
-              onDownloadAll={downloadAllReady}
-            />
-          )}
-
-          {hasActivity && (
-            <RecentActivity
-              entries={activityEntries}
-              userId={userId}
-              onReprocess={(videoId) => {
-                const url = `https://www.youtube.com/watch?v=${videoId}`
-                resetAllState()
-                window.scrollTo({ top: 0, behavior: 'smooth' })
-                handleAnalyze(url)
-              }}
-            />
-          )}
+      {/* ── History ────────────────────────────────────────────────────────
+          The queue used to share this block. It does not belong here: this is a
+          log of finished downloads, the queue is work that has not run yet. It
+          now lives in QueueDrawer, opened from the navbar. */}
+      {hasActivity && (
+        <div className="border-t border-hairline pt-8">
+          <RecentActivity
+            entries={activityEntries}
+            userId={userId}
+            onReprocess={(videoId) => {
+              const url = `https://www.youtube.com/watch?v=${videoId}`
+              resetAllState()
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+              handleAnalyze(url)
+            }}
+          />
         </div>
       )}
 

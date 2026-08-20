@@ -1,5 +1,7 @@
 import { DashboardNavbar } from '@/components/dashboard/DashboardNavbar'
 import { DashboardClient } from '@/components/dashboard/DashboardClient'
+import { QueueProvider } from '@/components/dashboard/QueueProvider'
+import { QueueDrawer } from '@/components/dashboard/QueueDrawer'
 
 export type ActivityEntry = {
   id: string
@@ -30,11 +32,17 @@ export default async function DashboardPage() {
         <div className="grid-lines absolute inset-0 opacity-50" />
       </div>
 
-      <DashboardNavbar />
+      {/* The queue is shared between the navbar trigger and the drawer, so it is
+          owned here rather than inside DashboardClient. */}
+      <QueueProvider>
+        <DashboardNavbar />
 
-      <main className="relative mx-auto max-w-[1440px] px-4 pb-20 pt-6 sm:px-6 lg:px-10">
-        <DashboardClient activityEntries={[]} userId="anonymous" />
-      </main>
+        <main className="relative mx-auto max-w-[1440px] px-4 pb-20 pt-6 sm:px-6 lg:px-10">
+          <DashboardClient activityEntries={[]} userId="anonymous" />
+        </main>
+
+        <QueueDrawer />
+      </QueueProvider>
     </div>
   )
 }
