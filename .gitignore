@@ -51,5 +51,6 @@ Thumbs.db
 .idea/
 *.iml
 
-# Markdown files
+# Markdown files — scratch notes stay local, but the repo README is published
 *.md
+!README.md
